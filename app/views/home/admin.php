@@ -94,7 +94,7 @@ function formatarCNPJ($cnpj) {
 
                     
                     
-                    <a href="../public/index.php?controller=admin&action=historicoAlteracoesUsuario" class="function">
+                    <!-- <a href="../public/index.php?controller=admin&action=historicoAlteracoesUsuario" class="function">
                         <i class="fa-solid fa-rectangle-list"></i>
                         <p>Histórico de Alterações</p>
                     </a>
@@ -103,13 +103,18 @@ function formatarCNPJ($cnpj) {
                     <a href="../public/index.php?controller=admin&action=historicoLogin" class="function">
                         <i class="fa-solid fa-right-to-bracket"></i>
                         <p>Histórico de Acessos</p>
+                    </a> -->
+
+                    <a href="../public/index.php?controller=compra&action=relatorioMensal" class="function">
+                        <i class="fas fa-calendar-alt"></i>
+                        <p>Relatório Mensal de Vendas</p>
                     </a>
 
-                    <a href="../public/index.php?controller=compra&action=relatorioVendas" class="function">
-                    <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <p>Relatório de Vendas</p>
-                    </a>
 
+                    <a href="../public/index.php?controller=compra&action=topClientes" class="function">
+                        <i class="fas fa-users"></i>
+                        <p>Top Clientes</p>
+                    </a>
                     <!-- <a href="#"class="function" style="visibility: hidden">>
                         <p> </p>
                     </a> -->

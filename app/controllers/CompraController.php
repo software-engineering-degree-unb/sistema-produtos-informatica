@@ -148,4 +148,40 @@ class CompraController {
             exit;
         }
     }
+
+    public function relatorioMensal() {
+        // Verificar se é um administrador
+        $this->validateAdminAccess();
+        
+        // Obter o ano selecionado (default: ano atual)
+        $ano = isset($_GET['ano']) ? (int)$_GET['ano'] : date('Y');
+        
+        // Obter os dados do relatório mensal
+        $relatorio = $this->compra->getRelatorioMensal($ano);
+        
+        // Carregar a view
+        require_once dirname(__DIR__) . '/views/vendas/relatorio-mensal.php';
+    }
+
+
+    public function topClientes() {
+        // Verificar se é um administrador
+        $this->validateAdminAccess();
+        
+        // Obter parâmetros de filtros
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+        $orderBy = isset($_GET['orderBy']) && in_array($_GET['orderBy'], ['valorTotal', 'totalCompras']) 
+                  ? $_GET['orderBy'] : 'valorTotal';
+        $periodo = isset($_GET['periodo']) && in_array($_GET['periodo'], ['mes', 'trimestre', 'semestre', 'ano', '']) 
+                  ? $_GET['periodo'] : '';
+        
+        // Garantir que limit seja pelo menos 1 e no máximo 50
+        $limit = max(1, min(50, $limit));
+        
+        // Obter dados dos top clientes
+        $resultado = $this->compra->getTopClientes($limit, $orderBy, $periodo);
+        
+        // Carregar a view
+        require_once dirname(__DIR__) . '/views/vendas/relatorio-clientes.php';
+    }
 }
