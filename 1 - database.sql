@@ -26,6 +26,11 @@ CREATE TABLE tipoProduto (
     descricao VARCHAR (20) NOT NULL
 );
 
+CREATE TABLE canalVenda (
+    idCanalVenda INT AUTO_INCREMENT PRIMARY KEY,
+    descricao VARCHAR(50) NOT NULL
+);
+
 CREATE TABLE produto (
     idProduto INT AUTO_INCREMENT PRIMARY KEY,
     idVisibilidadeProduto INT,
@@ -111,7 +116,9 @@ CREATE TABLE compra (
     idUsuario INT NOT NULL,
     dataCompra DATETIME DEFAULT CURRENT_TIMESTAMP,
     valorTotal DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (idUsuario) REFERENCES usuario(idUsuario)
+    idCanalVenda INT NOT NULL,
+    FOREIGN KEY (idUsuario) REFERENCES usuario(idUsuario),
+    FOREIGN KEY (idCanalVenda) REFERENCES canalVenda(idCanalVenda)
 );
 
 -- Tabela para armazenar os itens individuais da compra
@@ -141,6 +148,13 @@ INSERT INTO tipoLogin (idTipoLogin, descricao) VALUES
 (1, 'Comum'),
 (2, 'Administrador');
 
+INSERT INTO canalVenda (idCanalVenda, descricao) VALUES
+(1, 'Loja Física'),
+(2, 'Loja Online'),
+(3, 'Marketplace'),
+(4, 'Revendedor Autorizado');
+
+
 -- Inserção de um usuário administrador
 INSERT INTO usuario (idUsuario, nome, documento, idSituacaoUsuario) 
 VALUES (1, 'Administrador', '12345678901', 1);
@@ -157,9 +171,5 @@ VALUES (2, 'Usuário Comum', '12345678901', 1);
 INSERT INTO login (idUsuario, login, senha, idTipoLogin, idSituacaoUsuario)
 VALUES (2, 'user', '$2a$10$DiTEt9DPY7Hu3G3XPFW8r.LweYF.VaBEUkqscABFzEoo3Bjj54Oia', 1, 1);
 
-INSERT INTO tipoProduto (idTipoProduto, descricao) VALUES
-(1, 'Placa Mãe'),
-(2, 'Memória RAM PC'),
-(3, 'Memória RAM Notebook');
 
 

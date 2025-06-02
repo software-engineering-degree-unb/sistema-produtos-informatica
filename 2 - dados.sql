@@ -1,5 +1,8 @@
 -- Insert additional product types
 INSERT INTO tipoProduto (descricao) VALUES
+('Placa Mãe'),
+('Memória RAM PC'),
+('Memória RAM Notebook'),
 ('Processador'),
 ('Placa de Vídeo'),
 ('SSD'),

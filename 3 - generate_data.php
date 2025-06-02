@@ -1,9 +1,9 @@
 <?php
 // Configure database connection
 $host = 'localhost';
-$db = 'sistema_produtos_informatica'; // Updated to match your DB name
-$user = 'root'; // Adjust to your DB user
-$pass = 'root'; // Adjust to your DB password
+$db = 'sistema_produtos_informatica'; 
+$user = 'root'; 
+$pass = 'root'; 
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
@@ -96,7 +96,7 @@ try {
                     $quantity = mt_rand(1, 5);
                     
                     // Calculate prices
-                    $unitPrice = floatval($product['valorProduto']); // Using valorProduto instead of precoProduto
+                    $unitPrice = floatval($product['valorProduto']); 
                     // Add small random variation to price
                     $unitPrice = round($unitPrice * (1 + (mt_rand(-5, 5) / 100)), 2);
                     $itemTotal = $unitPrice * $quantity;
@@ -113,14 +113,18 @@ try {
                 
                 // Insert purchase header
                 $stmt = $pdo->prepare("
-                    INSERT INTO compra (idUsuario, valorTotal, dataCompra) 
-                    VALUES (:idUsuario, :valorTotal, :dataCompra)
+                    INSERT INTO compra (idUsuario, valorTotal, dataCompra, idCanalVenda) 
+                    VALUES (:idUsuario, :valorTotal, :dataCompra, :idCanalVenda)
                 ");
+                
+                // Randomly select a sales channel (1-4)
+                $canalVenda = mt_rand(1, 4);
                 
                 $stmt->execute([
                     'idUsuario' => $userId,
                     'valorTotal' => $totalValue,
-                    'dataCompra' => $purchaseDate->format('Y-m-d H:i:s')
+                    'dataCompra' => $purchaseDate->format('Y-m-d H:i:s'),
+                    'idCanalVenda' => $canalVenda
                 ]);
                 
                 $purchaseId = $pdo->lastInsertId();

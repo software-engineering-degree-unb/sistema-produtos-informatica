@@ -16,11 +16,17 @@ class Compra {
                 $valorTotal += $item['price'] * $item['quantity'];
             }
             
+            // Selecionar um canal de venda aleatório (1-4)
+            $idCanalVenda = mt_rand(1, 4);
+            
             // Inserir cabeçalho da compra
-            $query = "INSERT INTO compra (idUsuario, valorTotal) VALUES (:idUsuario, :valorTotal)";
+            $query = "INSERT INTO compra (idUsuario, valorTotal, idCanalVenda) 
+                    VALUES (:idUsuario, :valorTotal, :idCanalVenda)";
+                    
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
             $stmt->bindParam(':valorTotal', $valorTotal, PDO::PARAM_STR);
+            $stmt->bindParam(':idCanalVenda', $idCanalVenda, PDO::PARAM_INT);
             
             if (!$stmt->execute()) {
                 throw new Exception("Erro ao registrar a compra");
@@ -429,19 +435,19 @@ class Compra {
             $query = "SELECT 
                         u.idUsuario,
                         u.nome,
-                        l.login as email, /* Using login field instead of email */
+                        l.login as email,
                         COUNT(c.idCompra) as totalCompras,
                         SUM(c.valorTotal) as valorTotal,
                         AVG(c.valorTotal) as mediaCompra,
                         MIN(c.dataCompra) as primeiraCompra,
                         MAX(c.dataCompra) as ultimaCompra
                     FROM usuario u
-                    LEFT JOIN login l ON u.idUsuario = l.idUsuario /* Join with login table */
+                    LEFT JOIN login l ON u.idUsuario = l.idUsuario
                     JOIN compra c ON u.idUsuario = c.idUsuario";
             
             $params = [];
             
-            // Filtro por período (último mês, último ano, etc.)
+            // Filtro por período
             if ($periodo) {
                 $query .= " WHERE c.dataCompra >= :dataInicio";
                 
@@ -589,4 +595,109 @@ class Compra {
             ];
         }
     }
+
+
+
+
+    public function listarVendasPorCanal($filtros = []) {
+        try {
+            $query = "SELECT 
+                    cv.descricao as canalVenda,
+                    COUNT(c.idCompra) as totalCompras,
+                    SUM(c.valorTotal) as valorTotal,
+                    AVG(c.valorTotal) as mediaValor
+                FROM compra c 
+                JOIN canalVenda cv ON c.idCanalVenda = cv.idCanalVenda
+                WHERE 1=1";
+            
+            $params = [];
+            
+            // Filtro por data inicial
+            if (!empty($filtros['dataInicial'])) {
+                $query .= " AND c.dataCompra >= :dataInicial";
+                $params[':dataInicial'] = $filtros['dataInicial'] . ' 00:00:00';
+            }
+            
+            // Filtro por data final
+            if (!empty($filtros['dataFinal'])) {
+                $query .= " AND c.dataCompra <= :dataFinal";
+                $params[':dataFinal'] = $filtros['dataFinal'] . ' 23:59:59';
+            }
+            
+            // Filtro por canal específico
+            if (!empty($filtros['canal'])) {
+                $query .= " AND cv.descricao = :canal";
+                $params[':canal'] = $filtros['canal'];
+            }
+            
+            $query .= " GROUP BY cv.descricao ORDER BY valorTotal DESC";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            // Bind de parâmetros
+            foreach($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            
+            $stmt->execute();
+            $vendasPorCanal = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Calcular totais gerais
+            $queryTotais = "SELECT 
+                    COUNT(c.idCompra) as totalCompras,
+                    SUM(c.valorTotal) as valorTotal,
+                    AVG(c.valorTotal) as mediaValor
+                FROM compra c 
+                JOIN canalVenda cv ON c.idCanalVenda = cv.idCanalVenda
+                WHERE 1=1";
+                
+            // Aplicamos os mesmos filtros
+            if (!empty($filtros['dataInicial'])) {
+                $queryTotais .= " AND c.dataCompra >= :dataInicial";
+            }
+            
+            if (!empty($filtros['dataFinal'])) {
+                $queryTotais .= " AND c.dataCompra <= :dataFinal";
+            }
+            
+            if (!empty($filtros['canal'])) {
+                $queryTotais .= " AND cv.descricao = :canal";
+            }
+            
+            $stmtTotais = $this->conn->prepare($queryTotais);
+            
+            // Bind de parâmetros novamente
+            foreach($params as $key => $value) {
+                $stmtTotais->bindValue($key, $value);
+            }
+            
+            $stmtTotais->execute();
+            $totais = $stmtTotais->fetch(PDO::FETCH_ASSOC);
+            
+            // Obter lista de todos os canais para o filtro
+            $queryCanais = "SELECT descricao FROM canalVenda ORDER BY descricao";
+            $stmtCanais = $this->conn->prepare($queryCanais);
+            $stmtCanais->execute();
+            $canais = $stmtCanais->fetchAll(PDO::FETCH_COLUMN);
+            
+            return [
+                'vendasPorCanal' => $vendasPorCanal,
+                'totais' => $totais,
+                'canais' => $canais
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("Erro ao listar vendas por canal: " . $e->getMessage());
+            return [
+                'vendasPorCanal' => [],
+                'totais' => [
+                    'totalCompras' => 0,
+                    'valorTotal' => 0,
+                    'mediaValor' => 0
+                ],
+                'canais' => []
+            ];
+        }
+    }
+
 }

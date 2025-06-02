@@ -115,6 +115,13 @@ function formatarCNPJ($cnpj) {
                         <i class="fas fa-users"></i>
                         <p>Top Clientes</p>
                     </a>
+
+
+                    <a href="../public/index.php?controller=compra&action=relatorioVendasPorCanal" class="function">
+                        <i class="fa-solid fa-store"></i>
+                        <p>Vendas por Canal</p>
+                    </a>
+  
                     <!-- <a href="#"class="function" style="visibility: hidden">>
                         <p> </p>
                     </a> -->

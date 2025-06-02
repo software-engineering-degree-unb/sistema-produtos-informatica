@@ -184,4 +184,26 @@ class CompraController {
         // Carregar a view
         require_once dirname(__DIR__) . '/views/vendas/relatorio-clientes.php';
     }
+
+
+
+    public function relatorioVendasPorCanal() {
+        // Verificar se é um administrador
+        $this->validateAdminAccess();
+        
+        // Obter parâmetros de filtros
+        $filtros = [
+            'dataInicial' => $_GET['dataInicial'] ?? '',
+            'dataFinal' => $_GET['dataFinal'] ?? '',
+            'canal' => $_GET['canal'] ?? '',
+        ];
+        
+        // Obter resultados filtrados
+        $resultado = $this->compra->listarVendasPorCanal($filtros);
+        $vendasPorCanal = $resultado['vendasPorCanal'];
+        $totais = $resultado['totais'];
+        $canais = $resultado['canais'];
+        
+        require_once dirname(__DIR__) . '/views/vendas/relatorio-canais.php';
+    }
 }
