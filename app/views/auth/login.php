@@ -80,7 +80,7 @@ function formatarCNPJ($cnpj) {
             </script>
         <?php endif; ?>
         <div class="login">
-            <h1>Intranet</h1>
+            <h1>Login - Loja</h1>
             <img src="../public/assets/img/logo1.png" alt="Evo Sistemas Inteligentes">
             <form action="../public/index.php?controller=auth&action=login" method="post">
                 <label for="username">

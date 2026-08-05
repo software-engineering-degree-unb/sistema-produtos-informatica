@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatório de Vendas por Canal</title>
+    <link rel="icon" type="image/x-icon" href="../public/assets/img/icon.ico">
+    <link href="../public/assets/css/relatorio-vendas.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .filter-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin: 30px 0;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .canal-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .canal-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.3s ease;
+            border-left: 4px solid #0f2566;
+        }
+        
+        .canal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .canal-nome {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #0f2566;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .canal-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .canal-stat {
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #0f2566;
+        }
+        
+        .canal-percent {
+            margin-top: 20px;
+            position: relative;
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .canal-percent-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: #0f2566;
+        }
+        
+        .canal-percent-text {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .canal-card.top-1 {
+            border-left-color: #28a745;
+        }
+        
+        .canal-card.top-1 .canal-percent-bar {
+            background-color: #28a745;
+        }
+        
+        .canal-card.top-2 {
+            border-left-color: #17a2b8;
+        }
+        
+        .canal-card.top-2 .canal-percent-bar {
+            background-color: #17a2b8;
+        }
+        
+        .canal-card.top-3 {
+            border-left-color: #ffc107;
+        }
+        
+        .canal-card.top-3 .canal-percent-bar {
+            background-color: #ffc107;
+        }
+        
+        .print-btn {
+            float: right;
+            margin-bottom: 20px;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .content {
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            
+            .chart-container {
+                page-break-inside: avoid;
+                page-break-after: always;
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+            
+            .canal-card {
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+            
+            .canal-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .filter-form {
+                flex-direction: column;
+            }
+            
+            .filter-group, .filter-buttons {
+                width: 100%;
+            }
+            
+            .canal-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="loggedin">
+    <nav class="navtop no-print">
+        <div class="nav-left">
+            <img src="../public/assets/img/logo2.png" alt="">
+        </div>
+        <div class="nav-right">
+            <a href="../public/index.php?controller=home&action=index"><i class="fas fa-house"></i>Página Inicial</a>
+            <a href="../public/index.php?controller=produto&action=listProdutos"><i class="fas fa-shopping-bag"></i>Produtos</a>
+            <a href="../public/index.php?controller=compra&action=relatorioVendas"><i class="fas fa-chart-line"></i>Relatório de Vendas</a>
+            <a href="../public/index.php?controller=compra&action=relatorioMensal"><i class="fas fa-calendar-alt"></i>Relatório Mensal</a>
+            <a href="../public/index.php?controller=compra&action=topClientes"><i class="fas fa-users"></i>Top Clientes</a>
+            <a href="../public/index.php?controller=profile&action=index"><i class="fas fa-user-circle"></i>Meu Perfil</a>
+            <a href="../public/index.php?controller=auth&action=logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
+        </div>
+    </nav>
+    
+    <div class="content">
+        <h2>Relatório de Vendas por Canal</h2>
+        
+        <button class="btn btn-primary print-btn no-print" onclick="window.print();">
+            <i class="fas fa-print"></i> Imprimir Relatório
+        </button>
+        
+        <div class="filter-container no-print">
+            <form action="" method="GET" class="filter-form">
+                <input type="hidden" name="controller" value="compra">
+                <input type="hidden" name="action" value="relatorioVendasPorCanal">
+                
+                <div class="filter-group">
+                    <label for="dataInicial">Data Inicial:</label>
+                    <input type="date" id="dataInicial" name="dataInicial" value="<?php echo htmlspecialchars($filtros['dataInicial'] ?? ''); ?>">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="dataFinal">Data Final:</label>
+                    <input type="date" id="dataFinal" name="dataFinal" value="<?php echo htmlspecialchars($filtros['dataFinal'] ?? ''); ?>">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="canal">Canal:</label>
+                    <select id="canal" name="canal">
+                        <option value="">Todos os canais</option>
+                        <?php foreach ($canais as $canal): ?>
+                            <option value="<?php echo htmlspecialchars($canal); ?>" <?php echo ($filtros['canal'] == $canal) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($canal); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="filter-buttons">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a href="../public/index.php?controller=compra&action=relatorioVendasPorCanal" class="btn btn-secondary">Limpar Filtros</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-label">Total de Vendas</div>
+                <div class="stat-value"><?php echo number_format($totais['totalCompras'] ?? 0, 0, ',', '.'); ?></div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Valor Total (R$)</div>
+                <div class="stat-value"><?php echo number_format($totais['valorTotal'] ?? 0, 2, ',', '.'); ?></div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Média por Venda (R$)</div>
+                <div class="stat-value"><?php echo number_format($totais['mediaValor'] ?? 0, 2, ',', '.'); ?></div>
+            </div>
+        </div>
+        
+        <?php if (empty($vendasPorCanal)): ?>
+            <div class="no-results">
+                <p>Nenhuma venda encontrada com os filtros selecionados.</p>
+            </div>
+        <?php else: ?>
+            <div class="chart-container">
+                <canvas id="valoresPorCanalChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="vendasPorCanalChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="ticketMedioPorCanalChart"></canvas>
+            </div>
+            
+            <h3>Detalhamento por Canal</h3>
+            <div class="canal-cards">
+                <?php 
+                foreach ($vendasPorCanal as $index => $canalData): 
+                    $classCanal = '';
+                    if ($index === 0) $classCanal = 'top-1';
+                    else if ($index === 1) $classCanal = 'top-2';
+                    else if ($index === 2) $classCanal = 'top-3';
+                    
+                    $percentual = ($totais['valorTotal'] > 0) ? 
+                        ($canalData['valorTotal'] / $totais['valorTotal']) * 100 : 0;
+                ?>
+                <div class="canal-card <?php echo $classCanal; ?>">
+                    <div class="canal-nome"><?php echo htmlspecialchars($canalData['canalVenda'] ?? 'Não especificado'); ?></div>
+                    
+                    <div class="canal-stats">
+                        <div class="canal-stat">
+                            <div class="stat-label">Total de Vendas</div>
+                            <div class="stat-value"><?php echo number_format($canalData['totalCompras'], 0, ',', '.'); ?></div>
+                        </div>
+                        
+                        <div class="canal-stat">
+                            <div class="stat-label">Valor Total</div>
+                            <div class="stat-value">R$ <?php echo number_format($canalData['valorTotal'], 2, ',', '.'); ?></div>
+                        </div>
+                        
+                        <div class="canal-stat">
+                            <div class="stat-label">Ticket Médio</div>
+                            <div class="stat-value">R$ <?php echo number_format($canalData['mediaValor'], 2, ',', '.'); ?></div>
+                        </div>
+                        
+                        <div class="canal-stat">
+                            <div class="stat-label">% do Total</div>
+                            <div class="stat-value"><?php echo number_format($percentual, 2, ',', '.'); ?>%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="canal-percent">
+                        <div class="canal-percent-bar" style="width: <?php echo $percentual; ?>%;"></div>
+                    </div>
+                    <div class="canal-percent-text">
+                        <?php echo number_format($percentual, 1, ',', '.'); ?>% do faturamento total
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <a href="../public/index.php?controller=compra&action=relatorioVendas&canal=<?php echo urlencode($canalData['canalVenda']); ?>" class="btn btn-secondary no-print">
+                            <i class="fas fa-search"></i> Ver Vendas
+                        </a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            
+            <h3>Tabela Comparativa</h3>
+            <div class="table-responsive">
+                <table class="vendas-table">
+                    <thead>
+                        <tr>
+                            <th>Canal de Venda</th>
+                            <th>Total de Vendas</th>
+                            <th>Valor Total (R$)</th>
+                            <th>Ticket Médio (R$)</th>
+                            <th>% do Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($vendasPorCanal as $canal): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($canal['canalVenda'] ?? 'Não especificado'); ?></td>
+                                <td><?php echo number_format($canal['totalCompras'], 0, ',', '.'); ?></td>
+                                <td>R$ <?php echo number_format($canal['valorTotal'], 2, ',', '.'); ?></td>
+                                <td>R$ <?php echo number_format($canal['mediaValor'], 2, ',', '.'); ?></td>
+                                <td>
+                                    <?php 
+                                    $percentual = ($totais['valorTotal'] > 0) ? 
+                                        ($canal['valorTotal'] / $totais['valorTotal']) * 100 : 0;
+                                    echo number_format($percentual, 2, ',', '.') . '%'; 
+                                    ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se as datas são válidas
+            const dataInicialInput = document.getElementById('dataInicial');
+            const dataFinalInput = document.getElementById('dataFinal');
+            
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const dataInicial = new Date(dataInicialInput.value);
+                const dataFinal = new Date(dataFinalInput.value);
+                
+                if (dataInicialInput.value && dataFinalInput.value && dataFinal < dataInicial) {
+                    e.preventDefault();
+                    alert('A data final não pode ser anterior à data inicial.');
+                }
+            });
+            
+            <?php if (!empty($vendasPorCanal)): ?>
+            // Preparar dados para os gráficos
+            var canais = <?php echo json_encode(array_column($vendasPorCanal, 'canalVenda')); ?>;
+            var valoresTotal = <?php echo json_encode(array_map(function($c) { return (float)$c['valorTotal']; }, $vendasPorCanal)); ?>;
+            var quantidadesVendas = <?php echo json_encode(array_map(function($c) { return (int)$c['totalCompras']; }, $vendasPorCanal)); ?>;
+            var ticketMedio = <?php echo json_encode(array_map(function($c) { return (float)$c['mediaValor']; }, $vendasPorCanal)); ?>;
+            
+            // Gráfico de valores por canal
+            var ctxValores = document.getElementById('valoresPorCanalChart').getContext('2d');
+            new Chart(ctxValores, {
+                type: 'bar',
+                data: {
+                    labels: canais,
+                    datasets: [{
+                        label: 'Valor Total (R$)',
+                        data: valoresTotal,
+                        backgroundColor: 'rgba(15, 37, 102, 0.7)',
+                        borderColor: 'rgba(15, 37, 102, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Valor Total de Vendas por Canal',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'R$ ' + context.parsed.y.toLocaleString('pt-BR', {
+                                        minimumFractionDigits: 2, 
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR', {
+                                        minimumFractionDigits: 2, 
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de quantidade de vendas por canal
+            var ctxVendas = document.getElementById('vendasPorCanalChart').getContext('2d');
+            new Chart(ctxVendas, {
+                type: 'pie',
+                data: {
+                    labels: canais,
+                    datasets: [{
+                        data: quantidadesVendas,
+                        backgroundColor: [
+                            'rgba(15, 37, 102, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(199, 199, 199, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(15, 37, 102, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(199, 199, 199, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribuição de Vendas por Canal',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.label || '';
+                                    var valor = context.raw || 0;
+                                    
+                                    // Calcular o total manualmente
+                                    var total = context.dataset.data.reduce((sum, value) => sum + value, 0);
+                                    
+                                    // Calcular o percentual manualmente
+                                    var percentual = total > 0 ? (valor / total) * 100 : 0;
+                                    
+                                    return label + ': ' + valor.toLocaleString('pt-BR') + ' vendas (' + 
+                                        percentual.toLocaleString('pt-BR', {
+                                            minimumFractionDigits: 1, 
+                                            maximumFractionDigits: 1
+                                        }) + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de ticket médio por canal
+            var ctxTicket = document.getElementById('ticketMedioPorCanalChart').getContext('2d');
+            new Chart(ctxTicket, {
+                type: 'bar',
+                data: {
+                    labels: canais,
+                    datasets: [{
+                        label: 'Ticket Médio (R$)',
+                        data: ticketMedio,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Ticket Médio por Canal',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'R$ ' + context.parsed.x.toLocaleString('pt-BR', {
+                                        minimumFractionDigits: 2, 
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR', {
+                                        minimumFractionDigits: 2, 
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            <?php endif; ?>
+        });
+    </script>
+</body>
+</html>
