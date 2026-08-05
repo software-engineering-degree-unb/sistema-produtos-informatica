@@ -1,37 +1,41 @@
+"""Cria o banco de dados e as tabelas do sistema.
 
--- ###################################################################### CRIACAO DE TABELAS
+Substitui o script original ``1 - database.sql``.
+Executar antes do ``seed_data.py``.
+"""
 
+import pymysql
 
-CREATE DATABASE sistema_produtos_informatica CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+from app.config.database import get_connection
+from app.config.settings import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
-USE sistema_produtos_informatica;
-
-CREATE TABLE situacaoUsuario (
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS situacaoUsuario (
     idSituacaoUsuario INT PRIMARY KEY,
     descricao VARCHAR(7) NOT NULL
 );
 
-CREATE TABLE visibilidadeProduto (
+CREATE TABLE IF NOT EXISTS visibilidadeProduto (
     idVisibilidadeProduto INT PRIMARY KEY,
     descricao VARCHAR(7) NOT NULL
 );
 
-CREATE TABLE tipoLogin (
+CREATE TABLE IF NOT EXISTS tipoLogin (
     idTipoLogin INT PRIMARY KEY,
     descricao VARCHAR(13) NOT NULL
 );
 
-CREATE TABLE tipoProduto (
+CREATE TABLE IF NOT EXISTS tipoProduto (
     idTipoProduto INT AUTO_INCREMENT PRIMARY KEY,
-    descricao VARCHAR (20) NOT NULL
+    descricao VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE canalVenda (
+CREATE TABLE IF NOT EXISTS canalVenda (
     idCanalVenda INT AUTO_INCREMENT PRIMARY KEY,
     descricao VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE produto (
+CREATE TABLE IF NOT EXISTS produto (
     idProduto INT AUTO_INCREMENT PRIMARY KEY,
     idVisibilidadeProduto INT,
     nomeProduto VARCHAR(120),
@@ -44,23 +48,23 @@ CREATE TABLE produto (
     FOREIGN KEY (idVisibilidadeProduto) REFERENCES visibilidadeProduto(idVisibilidadeProduto)
 );
 
-CREATE TABLE imagemProduto (
+CREATE TABLE IF NOT EXISTS imagemProduto (
     idImagemProduto INT AUTO_INCREMENT PRIMARY KEY,
     idProduto INT,
     imagemProduto MEDIUMTEXT,
     FOREIGN KEY (idProduto) REFERENCES produto(idProduto)
 );
 
-CREATE TABLE usuario (
+CREATE TABLE IF NOT EXISTS usuario (
     idUsuario INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    documento VARCHAR (20),
+    documento VARCHAR(20),
     dataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP,
     idSituacaoUsuario INT,
     FOREIGN KEY (idSituacaoUsuario) REFERENCES situacaoUsuario(idSituacaoUsuario)
 );
 
-CREATE TABLE endereco (
+CREATE TABLE IF NOT EXISTS endereco (
     idEndereco INT AUTO_INCREMENT PRIMARY KEY,
     idUsuario INT NOT NULL,
     cep VARCHAR(9) NOT NULL,
@@ -72,7 +76,7 @@ CREATE TABLE endereco (
     FOREIGN KEY (idUsuario) REFERENCES usuario(idUsuario)
 );
 
-CREATE TABLE login (
+CREATE TABLE IF NOT EXISTS login (
     idLogin INT AUTO_INCREMENT PRIMARY KEY,
     idUsuario INT,
     login VARCHAR(20) NOT NULL,
@@ -85,7 +89,7 @@ CREATE TABLE login (
     FOREIGN KEY (idSituacaoUsuario) REFERENCES situacaoUsuario(idSituacaoUsuario)
 );
 
-CREATE TABLE historicoAlteracoesUsuario (
+CREATE TABLE IF NOT EXISTS historicoAlteracoesUsuario (
     idHistorico INT AUTO_INCREMENT PRIMARY KEY,
     tabela VARCHAR(50) NOT NULL,
     operacao ENUM('INSERT', 'UPDATE') NOT NULL,
@@ -98,7 +102,7 @@ CREATE TABLE historicoAlteracoesUsuario (
     FOREIGN KEY (idLogin) REFERENCES login(idLogin)
 );
 
-CREATE TABLE historicoLogin (
+CREATE TABLE IF NOT EXISTS historicoLogin (
     idHistoricoLogin INT AUTO_INCREMENT PRIMARY KEY,
     idLogin INT,
     tipoOperacao ENUM('LOGIN', 'LOGOUT') NOT NULL,
@@ -110,8 +114,7 @@ CREATE TABLE historicoLogin (
     FOREIGN KEY (idLogin) REFERENCES login(idLogin)
 );
 
--- Tabela para armazenar o cabeçalho da compra
-CREATE TABLE compra (
+CREATE TABLE IF NOT EXISTS compra (
     idCompra INT AUTO_INCREMENT PRIMARY KEY,
     idUsuario INT NOT NULL,
     dataCompra DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -121,8 +124,7 @@ CREATE TABLE compra (
     FOREIGN KEY (idCanalVenda) REFERENCES canalVenda(idCanalVenda)
 );
 
--- Tabela para armazenar os itens individuais da compra
-CREATE TABLE item_compra (
+CREATE TABLE IF NOT EXISTS item_compra (
     idItemCompra INT AUTO_INCREMENT PRIMARY KEY,
     idCompra INT NOT NULL,
     idProduto INT NOT NULL,
@@ -132,44 +134,64 @@ CREATE TABLE item_compra (
     FOREIGN KEY (idCompra) REFERENCES compra(idCompra),
     FOREIGN KEY (idProduto) REFERENCES produto(idProduto)
 );
+"""
 
--- ###################################################################### INSERÇÃO DE DADOS
+REFERENCE_DATA = [
+    "INSERT IGNORE INTO situacaoUsuario (idSituacaoUsuario, descricao) VALUES (1, 'Ativo'), (2, 'Inativo')",
+    "INSERT IGNORE INTO visibilidadeProduto (idVisibilidadeProduto, descricao) VALUES (1, 'Visível'), (2, 'Oculto')",
+    "INSERT IGNORE INTO tipoLogin (idTipoLogin, descricao) VALUES (1, 'Comum'), (2, 'Administrador')",
+    "INSERT IGNORE INTO canalVenda (idCanalVenda, descricao) VALUES (1, 'Loja Física'), (2, 'Loja Online'), (3, 'Marketplace'), (4, 'Revendedor Autorizado')",
+]
 
-INSERT INTO situacaoUsuario (idSituacaoUsuario, descricao) VALUES
-(1, 'Ativo'),
-(2, 'Inativo');
-
-INSERT INTO visibilidadeProduto (idVisibilidadeProduto, descricao) VALUES
-(1, 'Visível'),
-(2, 'Oculto');
-
--- Inserindo dados iniciais na tabela tipoLogin
-INSERT INTO tipoLogin (idTipoLogin, descricao) VALUES
-(1, 'Comum'),
-(2, 'Administrador');
-
-INSERT INTO canalVenda (idCanalVenda, descricao) VALUES
-(1, 'Loja Física'),
-(2, 'Loja Online'),
-(3, 'Marketplace'),
-(4, 'Revendedor Autorizado');
+INITIAL_USERS = [
+    # admin
+    "INSERT IGNORE INTO usuario (idUsuario, nome, documento, idSituacaoUsuario) VALUES (1, 'Administrador', '12345678901', 1)",
+    "INSERT IGNORE INTO login (idUsuario, login, senha, idTipoLogin, idSituacaoUsuario) VALUES (1, 'admin', '$2a$10$z5y3iSLFfTeg/cui.YN29OujBx5bLAbku3QMCyn40uVIPhi1xzJq2', 2, 1)",
+    # usuario comum
+    "INSERT IGNORE INTO usuario (idUsuario, nome, documento, idSituacaoUsuario) VALUES (2, 'Usuário Comum', '12345678901', 1)",
+    "INSERT IGNORE INTO login (idUsuario, login, senha, idTipoLogin, idSituacaoUsuario) VALUES (2, 'user', '$2a$10$DiTEt9DPY7Hu3G3XPFW8r.LweYF.VaBEUkqscABFzEoo3Bjj54Oia', 1, 1)",
+]
 
 
--- Inserção de um usuário administrador
-INSERT INTO usuario (idUsuario, nome, documento, idSituacaoUsuario) 
-VALUES (1, 'Administrador', '12345678901', 1);
-
--- Inserção de um login para o usuário administrador
-INSERT INTO login (idUsuario, login, senha, idTipoLogin, idSituacaoUsuario)
-VALUES (1, 'admin', '$2a$10$z5y3iSLFfTeg/cui.YN29OujBx5bLAbku3QMCyn40uVIPhi1xzJq2', 2, 1);
-
--- Inserção de um usuário comum
-INSERT INTO usuario (idUsuario, nome, documento, idSituacaoUsuario) 
-VALUES (2, 'Usuário Comum', '12345678901', 1);
-
--- Inserção de um login para o usuário comum
-INSERT INTO login (idUsuario, login, senha, idTipoLogin, idSituacaoUsuario)
-VALUES (2, 'user', '$2a$10$DiTEt9DPY7Hu3G3XPFW8r.LweYF.VaBEUkqscABFzEoo3Bjj54Oia', 1, 1);
+def create_database():
+    conn = pymysql.connect(
+        host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASSWORD, charset="utf8mb4"
+    )
+    with conn.cursor() as cursor:
+        cursor.execute(
+            f"CREATE DATABASE IF NOT EXISTS {DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci"
+        )
+    conn.commit()
+    conn.close()
 
 
+def main():
+    print("Criando banco de dados...")
+    create_database()
 
+    print("Criando tabelas...")
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            for statement in SCHEMA.split(";"):
+                statement = statement.strip()
+                if statement:
+                    cursor.execute(statement)
+
+            for statement in REFERENCE_DATA:
+                cursor.execute(statement)
+
+            for statement in INITIAL_USERS:
+                cursor.execute(statement)
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+
+    print("Banco de dados e tabelas criados com sucesso.")
+
+
+if __name__ == "__main__":
+    main()
