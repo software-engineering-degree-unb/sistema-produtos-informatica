@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Histórico de Alterações</title>
+    <link rel="icon" type="image/x-icon" href="/assets/img/icon.ico">
+    <link href="/assets/css/historico-alteracoes.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body class="loggedin">
+    <nav class="navtop">
+        <div class="nav-left">
+            <img src="/assets/img/logo2.png" alt="">
+        </div>
+        <div class="nav-right">
+            <a href="/"><i class="fas fa-house"></i>Página Inicial</a>
+            <a href="/perfil"><i class="fas fa-user-circle"></i>Meu Perfil</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
+        </div>
+    </nav>
+    <div class="content">
+        <h2>Histórico de Alterações
+            <span class="info-icon" id="infoIcon"><i class="fas fa-info-circle"></i></span>
+        </h2>
+
+        <div id="infoModal" class="modal-legenda">
+            <div class="modal-legenda-content">
+                <span class="modal-legenda-close" id="closeModal">&times;</span>
+                <h2>Histórico de Alterações</h2>
+                <p>Através dessa tela é possível visulizar alterações feitas em cadastros.</p>
+                <ul>
+                    <li><strong>Listagem:</strong> Através da listagem é possível visualizar as seguintes informações:</li>
+                    <ul>
+                        <li><strong>Data:</strong> Data e hora que a alteração foi feita.</li>
+                        <li><strong>Operação:</strong> operação que foi realizada. Pode ser:</li>
+                        <ul>
+                            <li>Inclusão de um novo cadastro.</li>
+                            <li>Alteração de um cadastro existente.</li>
+                        </ul>
+                        <li><strong>Assunto:</strong> Campo de cadastro que foi incluído ou alterado.</li>
+                        <li><strong>Valor Antigo:</strong> Valor original (antes da alteração) do campo.</li>
+                        <li><strong>Valor Novo:</strong> Valor novo (após a alteração) do campo.</li>
+                        <li><strong>Cadastro Alterado:</strong> Documento do cadastro que foi incluído ou alterado.</li>
+                        <li><strong>Quem Alterou:</strong> Documento de quem realizou a inclusão ou alteração.</li>
+                    </ul>
+                    <p>Nas colunas de "Cadastro Alterado" e "Quem Alterou", é possível passar o mouse em cima do documento para visulaizar o noem do referido cadastro.</p>
+                    <br>
+                    <li><strong>Filtros:</strong> É possível filtrar os resultados de pesquisa através das seguintes opções:</li>
+                    <ul>
+                        <li><strong>Período:</strong> informar a data inicial e data final do período que deseja visualizar.</li>
+                        <li><strong>Tipo da Operação:</strong> Selecionar se é uma inclusão ou alteração.</li>
+                    </ul>
+                    <br>
+                    <p>O período é limitado a 31 dias de busca.</p>
+                    <button class="btn btn-secondary" id="closeModalButton">Fechar</button>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+
+            <form method="POST" action="/historico/alteracoes" id="filter-form">
+                <div class="form-group">
+                    <label for="data_inicial">Data Inicial:</label>
+                    <input type="date" id="data_inicial" name="data_inicial" value="{{ filterValues.dataInicial }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="data_final">Data Final:</label>
+                    <input type="date" id="data_final" name="data_final" value="{{ filterValues.dataFinal }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo_operacao">Tipo de Operação:</label>
+                    <select id="tipo_operacao" name="tipo_operacao">
+                        <option value="">Todos</option>
+                        <option value="INSERT" {% if filterValues.tipoOperacao == 'INSERT' %}selected{% endif %}>Cadastro</option>
+                        <option value="UPDATE" {% if filterValues.tipoOperacao == 'UPDATE' %}selected{% endif %}>Atualização</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="submit">ㅤ</label>
+                    <button type="submit" class="btn btn-primary">Pesquisar</button>
+                </div>
+
+            </form>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Operação</th>
+                        <th>Assunto</th>
+                        <th>Valor Antigo</th>
+                        <th>Valor Novo</th>
+                        <th>Cadastro Alterado</th>
+                        <th>Quem Alterou</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for alteracao in historico %}
+                    {% set campo = alteracao.campo or '' %}
+                    {% if campo not in ['idTipoLogin', 'idUsuario', 'login'] %}
+                        {% if campo == 'documento' %}
+                            {% set campoExibicao = 'Documento/Login' %}
+                        {% elif campo == 'idSituacaoCadastro' %}
+                            {% set campoExibicao = 'Status' %}
+                        {% elif campo == 'tipo_login' %}
+                            {% set campoExibicao = 'Tipo do Login' %}
+                        {% else %}
+                            {% set campoExibicao = campo %}
+                        {% endif %}
+
+                        {% set valorAntigo = (alteracao.valorAntigo or 'N/A') | string %}
+                        {% set valorAntigoExibido = valorAntigo if valorAntigo | length <= 15 else valorAntigo[:15] ~ '...' %}
+                        {% set valorNovo = (alteracao.valorNovo or 'N/A') | string %}
+                        {% set valorNovoExibido = valorNovo if valorNovo | length <= 18 else valorNovo[:18] ~ '...' %}
+
+                        <tr>
+                            <td>{{ alteracao.dataAlteracao or '' }}</td>
+                            <td>
+                                {% set operacao = alteracao.operacao or '' %}
+                                {{ 'Cadastro' if operacao == 'INSERT' else ('Atualização' if operacao == 'UPDATE' else operacao) }}
+                            </td>
+
+                            <td>{{ campoExibicao }}</td>
+                            <td>
+                                {{ 'Ativo' if valorAntigoExibido == '1' else ('Inativo' if valorAntigoExibido == '2' else valorAntigoExibido) }}
+                            </td>
+                            <td>
+                                {{ 'Ativo' if valorNovoExibido == '1' else ('Inativo' if valorNovoExibido == '2' else valorNovoExibido) }}
+                            </td>
+
+                            <td class="tooltip">
+                                {% set login = alteracao.login_alterado or '' %}
+                                {% if login | length == 14 %}
+                                    {{ login | formatar_cnpj }}
+                                {% elif login | length == 11 %}
+                                    {{ login | formatar_cpf }}
+                                {% else %}
+                                    {{ login }}
+                                {% endif %}
+                            <span class="tooltiptext">{{ alteracao.nome_completo_alterado or login }}</span>
+
+                            </td>
+                            <td class="tooltip">
+                                {% set login = alteracao.login_alterou or '' %}
+                                {% if login | length == 14 %}
+                                    {{ login | formatar_cnpj }}
+                                {% elif login | length == 11 %}
+                                    {{ login | formatar_cpf }}
+                                {% else %}
+                                    {{ login }}
+                                {% endif %}
+
+                            <span class="tooltiptext">{{ alteracao.nome_completo_alterou or login }}</span>
+
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="/assets/js/HistoricoAlteracoes.js"></script>
+</body>
+</html>

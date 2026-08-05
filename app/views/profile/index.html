@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil</title>
+    <link rel="icon" type="image/x-icon" href="/assets/img/icon.ico">
+    <link href="/assets/css/profile.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body class="loggedin">
+    <nav class="navtop">
+        <div class="nav-left">
+            <img src="/assets/img/logo2.png" alt="">
+        </div>
+        <div class="nav-right">
+            <a href="/"><i class="fas fa-house"></i>Página Inicial</a>
+            <a href="/perfil"><i class="fas fa-user-circle"></i>Meu Perfil</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
+        </div>
+    </nav>
+    <div class="content">
+        <h2>Meu Perfil</h2>
+        <div>
+            <p><strong>Detalhes da conta:</strong></p>
+            <table>
+                <tr>
+                    <td>Nome do Usuário:</td>
+                    <td>{{ userDetails.nome or '' }}</td>
+                </tr>
+                <tr>
+                    <td>Login:</td>
+                    <td>{{ userDetails.login or '' }}</td>
+                </tr>
+                <tr>
+                    <td>Tipo de perfil:</td>
+                    <td>{{ 'Usuário Comum' if userDetails.idTipoLogin == 1 else 'Administrador' }}</td>
+                </tr>
+                <tr>
+                    <td>Data de criação:</td>
+                    <td>{{ userDetails.dataCriacao or '' }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

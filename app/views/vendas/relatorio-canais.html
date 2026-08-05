@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatório de Vendas por Canal</title>
-    <link rel="icon" type="image/x-icon" href="../public/assets/img/icon.ico">
-    <link href="../public/assets/css/relatorio-vendas.css" rel="stylesheet" type="text/css">
+    <link rel="icon" type="image/x-icon" href="/assets/img/icon.ico">
+    <link href="/assets/css/relatorio-vendas.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -15,24 +15,24 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
-        
+
         .filter-form {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             align-items: flex-end;
         }
-        
+
         .filter-group {
             flex: 1;
             min-width: 200px;
         }
-        
+
         .filter-buttons {
             display: flex;
             gap: 10px;
         }
-        
+
         .chart-container {
             height: 400px;
             margin: 30px 0;
@@ -41,7 +41,7 @@
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        
+
         .canal-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -49,7 +49,7 @@
             margin-top: 30px;
             margin-bottom: 30px;
         }
-        
+
         .canal-card {
             background-color: #fff;
             border-radius: 8px;
@@ -58,12 +58,12 @@
             transition: transform 0.3s ease;
             border-left: 4px solid #0f2566;
         }
-        
+
         .canal-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        
+
         .canal-nome {
             font-size: 1.3em;
             font-weight: bold;
@@ -72,29 +72,29 @@
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
         }
-        
+
         .canal-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
-        
+
         .canal-stat {
             margin-bottom: 10px;
         }
-        
+
         .stat-label {
             font-size: 0.9em;
             color: #6c757d;
             margin-bottom: 5px;
         }
-        
+
         .stat-value {
             font-size: 1.2em;
             font-weight: bold;
             color: #0f2566;
         }
-        
+
         .canal-percent {
             margin-top: 20px;
             position: relative;
@@ -103,7 +103,7 @@
             border-radius: 5px;
             overflow: hidden;
         }
-        
+
         .canal-percent-bar {
             position: absolute;
             top: 0;
@@ -111,80 +111,80 @@
             height: 100%;
             background-color: #0f2566;
         }
-        
+
         .canal-percent-text {
             text-align: center;
             margin-top: 5px;
             font-size: 0.9em;
             color: #6c757d;
         }
-        
+
         .canal-card.top-1 {
             border-left-color: #28a745;
         }
-        
+
         .canal-card.top-1 .canal-percent-bar {
             background-color: #28a745;
         }
-        
+
         .canal-card.top-2 {
             border-left-color: #17a2b8;
         }
-        
+
         .canal-card.top-2 .canal-percent-bar {
             background-color: #17a2b8;
         }
-        
+
         .canal-card.top-3 {
             border-left-color: #ffc107;
         }
-        
+
         .canal-card.top-3 .canal-percent-bar {
             background-color: #ffc107;
         }
-        
+
         .print-btn {
             float: right;
             margin-bottom: 20px;
         }
-        
+
         @media print {
             .no-print {
                 display: none !important;
             }
-            
+
             .content {
                 width: 100% !important;
                 padding: 0 !important;
             }
-            
+
             .chart-container {
                 page-break-inside: avoid;
                 page-break-after: always;
                 box-shadow: none;
                 border: 1px solid #dee2e6;
             }
-            
+
             .canal-card {
                 page-break-inside: avoid;
                 box-shadow: none;
                 border: 1px solid #dee2e6;
             }
-            
+
             .canal-cards {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-        
+
         @media (max-width: 768px) {
             .filter-form {
                 flex-direction: column;
             }
-            
+
             .filter-group, .filter-buttons {
                 width: 100%;
             }
-            
+
             .canal-cards {
                 grid-template-columns: 1fr;
             }
@@ -194,147 +194,139 @@
 <body class="loggedin">
     <nav class="navtop no-print">
         <div class="nav-left">
-            <img src="../public/assets/img/logo2.png" alt="">
+            <img src="/assets/img/logo2.png" alt="">
         </div>
         <div class="nav-right">
-            <a href="../public/index.php?controller=home&action=index"><i class="fas fa-house"></i>Página Inicial</a>
-            <a href="../public/index.php?controller=produto&action=listProdutos"><i class="fas fa-shopping-bag"></i>Produtos</a>
-            <a href="../public/index.php?controller=compra&action=relatorioVendas"><i class="fas fa-chart-line"></i>Relatório de Vendas</a>
-            <a href="../public/index.php?controller=compra&action=relatorioMensal"><i class="fas fa-calendar-alt"></i>Relatório Mensal</a>
-            <a href="../public/index.php?controller=compra&action=topClientes"><i class="fas fa-users"></i>Top Clientes</a>
-            <a href="../public/index.php?controller=profile&action=index"><i class="fas fa-user-circle"></i>Meu Perfil</a>
-            <a href="../public/index.php?controller=auth&action=logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
+            <a href="/"><i class="fas fa-house"></i>Página Inicial</a>
+            <a href="/produtos"><i class="fas fa-shopping-bag"></i>Produtos</a>
+            <a href="/vendas"><i class="fas fa-chart-line"></i>Relatório de Vendas</a>
+            <a href="/vendas/mensal"><i class="fas fa-calendar-alt"></i>Relatório Mensal</a>
+            <a href="/vendas/top-clientes"><i class="fas fa-users"></i>Top Clientes</a>
+            <a href="/perfil"><i class="fas fa-user-circle"></i>Meu Perfil</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
         </div>
     </nav>
-    
+
     <div class="content">
         <h2>Relatório de Vendas por Canal</h2>
-        
+
         <button class="btn btn-primary print-btn no-print" onclick="window.print();">
             <i class="fas fa-print"></i> Imprimir Relatório
         </button>
-        
+
         <div class="filter-container no-print">
-            <form action="" method="GET" class="filter-form">
-                <input type="hidden" name="controller" value="compra">
-                <input type="hidden" name="action" value="relatorioVendasPorCanal">
-                
+            <form action="/vendas/canais" method="GET" class="filter-form">
                 <div class="filter-group">
                     <label for="dataInicial">Data Inicial:</label>
-                    <input type="date" id="dataInicial" name="dataInicial" value="<?php echo htmlspecialchars($filtros['dataInicial'] ?? ''); ?>">
+                    <input type="date" id="dataInicial" name="dataInicial" value="{{ filtros.dataInicial or '' }}">
                 </div>
-                
+
                 <div class="filter-group">
                     <label for="dataFinal">Data Final:</label>
-                    <input type="date" id="dataFinal" name="dataFinal" value="<?php echo htmlspecialchars($filtros['dataFinal'] ?? ''); ?>">
+                    <input type="date" id="dataFinal" name="dataFinal" value="{{ filtros.dataFinal or '' }}">
                 </div>
-                
+
                 <div class="filter-group">
                     <label for="canal">Canal:</label>
                     <select id="canal" name="canal">
                         <option value="">Todos os canais</option>
-                        <?php foreach ($canais as $canal): ?>
-                            <option value="<?php echo htmlspecialchars($canal); ?>" <?php echo ($filtros['canal'] == $canal) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($canal); ?>
+                        {% for canal in canais %}
+                            <option value="{{ canal }}" {% if filtros.canal == canal %}selected{% endif %}>
+                                {{ canal }}
                             </option>
-                        <?php endforeach; ?>
+                        {% endfor %}
                     </select>
                 </div>
-                
+
                 <div class="filter-buttons">
                     <button type="submit" class="btn btn-primary">Filtrar</button>
-                    <a href="../public/index.php?controller=compra&action=relatorioVendasPorCanal" class="btn btn-secondary">Limpar Filtros</a>
+                    <a href="/vendas/canais" class="btn btn-secondary">Limpar Filtros</a>
                 </div>
             </form>
         </div>
-        
+
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-label">Total de Vendas</div>
-                <div class="stat-value"><?php echo number_format($totais['totalCompras'] ?? 0, 0, ',', '.'); ?></div>
+                <div class="stat-value">{{ totais.totalCompras or 0 | format_int_brl }}</div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-label">Valor Total (R$)</div>
-                <div class="stat-value"><?php echo number_format($totais['valorTotal'] ?? 0, 2, ',', '.'); ?></div>
+                <div class="stat-value">{{ totais.valorTotal or 0 | format_valor_brl }}</div>
             </div>
-            
+
             <div class="stat-card">
                 <div class="stat-label">Média por Venda (R$)</div>
-                <div class="stat-value"><?php echo number_format($totais['mediaValor'] ?? 0, 2, ',', '.'); ?></div>
+                <div class="stat-value">{{ totais.mediaValor or 0 | format_valor_brl }}</div>
             </div>
         </div>
-        
-        <?php if (empty($vendasPorCanal)): ?>
+
+        {% if not vendasPorCanal %}
             <div class="no-results">
                 <p>Nenhuma venda encontrada com os filtros selecionados.</p>
             </div>
-        <?php else: ?>
+        {% else %}
             <div class="chart-container">
                 <canvas id="valoresPorCanalChart"></canvas>
             </div>
-            
+
             <div class="chart-container">
                 <canvas id="vendasPorCanalChart"></canvas>
             </div>
-            
+
             <div class="chart-container">
                 <canvas id="ticketMedioPorCanalChart"></canvas>
             </div>
-            
+
             <h3>Detalhamento por Canal</h3>
             <div class="canal-cards">
-                <?php 
-                foreach ($vendasPorCanal as $index => $canalData): 
-                    $classCanal = '';
-                    if ($index === 0) $classCanal = 'top-1';
-                    else if ($index === 1) $classCanal = 'top-2';
-                    else if ($index === 2) $classCanal = 'top-3';
-                    
-                    $percentual = ($totais['valorTotal'] > 0) ? 
-                        ($canalData['valorTotal'] / $totais['valorTotal']) * 100 : 0;
-                ?>
-                <div class="canal-card <?php echo $classCanal; ?>">
-                    <div class="canal-nome"><?php echo htmlspecialchars($canalData['canalVenda'] ?? 'Não especificado'); ?></div>
-                    
+                {% for canalData in vendasPorCanal %}
+                    {% set classCanal = '' %}
+                    {% if loop.index0 == 0 %}{% set classCanal = 'top-1' %}{% elif loop.index0 == 1 %}{% set classCanal = 'top-2' %}{% elif loop.index0 == 2 %}{% set classCanal = 'top-3' %}{% endif %}
+
+                    {% set percentual = ((canalData.valorTotal / totais.valorTotal) * 100) if totais.valorTotal > 0 else 0 %}
+                <div class="canal-card {{ classCanal }}">
+                    <div class="canal-nome">{{ canalData.canalVenda or 'Não especificado' }}</div>
+
                     <div class="canal-stats">
                         <div class="canal-stat">
                             <div class="stat-label">Total de Vendas</div>
-                            <div class="stat-value"><?php echo number_format($canalData['totalCompras'], 0, ',', '.'); ?></div>
+                            <div class="stat-value">{{ canalData.totalCompras | format_int_brl }}</div>
                         </div>
-                        
+
                         <div class="canal-stat">
                             <div class="stat-label">Valor Total</div>
-                            <div class="stat-value">R$ <?php echo number_format($canalData['valorTotal'], 2, ',', '.'); ?></div>
+                            <div class="stat-value">R$ {{ canalData.valorTotal | format_valor_brl }}</div>
                         </div>
-                        
+
                         <div class="canal-stat">
                             <div class="stat-label">Ticket Médio</div>
-                            <div class="stat-value">R$ <?php echo number_format($canalData['mediaValor'], 2, ',', '.'); ?></div>
+                            <div class="stat-value">R$ {{ canalData.mediaValor | format_valor_brl }}</div>
                         </div>
-                        
+
                         <div class="canal-stat">
                             <div class="stat-label">% do Total</div>
-                            <div class="stat-value"><?php echo number_format($percentual, 2, ',', '.'); ?>%</div>
+                            <div class="stat-value">{{ ('%.2f' | format(percentual)) | replace('.', ',') }}%</div>
                         </div>
                     </div>
-                    
+
                     <div class="canal-percent">
-                        <div class="canal-percent-bar" style="width: <?php echo $percentual; ?>%;"></div>
+                        <div class="canal-percent-bar" style="width: {{ percentual }}%;"></div>
                     </div>
                     <div class="canal-percent-text">
-                        <?php echo number_format($percentual, 1, ',', '.'); ?>% do faturamento total
+                        {{ ('%.1f' | format(percentual)) | replace('.', ',') }}% do faturamento total
                     </div>
-                    
+
                     <div style="margin-top: 20px;">
-                        <a href="../public/index.php?controller=compra&action=relatorioVendas&canal=<?php echo urlencode($canalData['canalVenda']); ?>" class="btn btn-secondary no-print">
+                        <a href="/vendas?canal={{ (canalData.canalVenda or '') | urlencode }}" class="btn btn-secondary no-print">
                             <i class="fas fa-search"></i> Ver Vendas
                         </a>
                     </div>
                 </div>
-                <?php endforeach; ?>
+                {% endfor %}
             </div>
-            
+
             <h3>Tabela Comparativa</h3>
             <div class="table-responsive">
                 <table class="vendas-table">
@@ -348,50 +340,47 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($vendasPorCanal as $canal): ?>
+                        {% for canal in vendasPorCanal %}
                             <tr>
-                                <td><?php echo htmlspecialchars($canal['canalVenda'] ?? 'Não especificado'); ?></td>
-                                <td><?php echo number_format($canal['totalCompras'], 0, ',', '.'); ?></td>
-                                <td>R$ <?php echo number_format($canal['valorTotal'], 2, ',', '.'); ?></td>
-                                <td>R$ <?php echo number_format($canal['mediaValor'], 2, ',', '.'); ?></td>
+                                <td>{{ canal.canalVenda or 'Não especificado' }}</td>
+                                <td>{{ canal.totalCompras | format_int_brl }}</td>
+                                <td>R$ {{ canal.valorTotal | format_valor_brl }}</td>
+                                <td>R$ {{ canal.mediaValor | format_valor_brl }}</td>
                                 <td>
-                                    <?php 
-                                    $percentual = ($totais['valorTotal'] > 0) ? 
-                                        ($canal['valorTotal'] / $totais['valorTotal']) * 100 : 0;
-                                    echo number_format($percentual, 2, ',', '.') . '%'; 
-                                    ?>
+                                    {% set percentual = ((canal.valorTotal / totais.valorTotal) * 100) if totais.valorTotal > 0 else 0 %}
+                                    {{ ('%.2f' | format(percentual)) | replace('.', ',') }}%
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
-        <?php endif; ?>
+        {% endif %}
     </div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar se as datas são válidas
             const dataInicialInput = document.getElementById('dataInicial');
             const dataFinalInput = document.getElementById('dataFinal');
-            
+
             document.querySelector('form').addEventListener('submit', function(e) {
                 const dataInicial = new Date(dataInicialInput.value);
                 const dataFinal = new Date(dataFinalInput.value);
-                
+
                 if (dataInicialInput.value && dataFinalInput.value && dataFinal < dataInicial) {
                     e.preventDefault();
                     alert('A data final não pode ser anterior à data inicial.');
                 }
             });
-            
-            <?php if (!empty($vendasPorCanal)): ?>
+
+            {% if vendasPorCanal %}
             // Preparar dados para os gráficos
-            var canais = <?php echo json_encode(array_column($vendasPorCanal, 'canalVenda')); ?>;
-            var valoresTotal = <?php echo json_encode(array_map(function($c) { return (float)$c['valorTotal']; }, $vendasPorCanal)); ?>;
-            var quantidadesVendas = <?php echo json_encode(array_map(function($c) { return (int)$c['totalCompras']; }, $vendasPorCanal)); ?>;
-            var ticketMedio = <?php echo json_encode(array_map(function($c) { return (float)$c['mediaValor']; }, $vendasPorCanal)); ?>;
-            
+            var canais = {{ vendasPorCanal | map(attribute='canalVenda') | list | tojson }};
+            var valoresTotal = {{ vendasPorCanal | map(attribute='valorTotal') | map('float') | list | tojson }};
+            var quantidadesVendas = {{ vendasPorCanal | map(attribute='totalCompras') | map('int') | list | tojson }};
+            var ticketMedio = {{ vendasPorCanal | map(attribute='mediaValor') | map('float') | list | tojson }};
+
             // Gráfico de valores por canal
             var ctxValores = document.getElementById('valoresPorCanalChart').getContext('2d');
             new Chart(ctxValores, {
@@ -421,7 +410,7 @@
                             callbacks: {
                                 label: function(context) {
                                     return 'R$ ' + context.parsed.y.toLocaleString('pt-BR', {
-                                        minimumFractionDigits: 2, 
+                                        minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     });
                                 }
@@ -434,7 +423,7 @@
                             ticks: {
                                 callback: function(value) {
                                     return 'R$ ' + value.toLocaleString('pt-BR', {
-                                        minimumFractionDigits: 2, 
+                                        minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     });
                                 }
@@ -443,7 +432,7 @@
                     }
                 }
             });
-            
+
             // Gráfico de quantidade de vendas por canal
             var ctxVendas = document.getElementById('vendasPorCanalChart').getContext('2d');
             new Chart(ctxVendas, {
@@ -491,16 +480,14 @@
                                 label: function(context) {
                                     var label = context.label || '';
                                     var valor = context.raw || 0;
-                                    
-                                    // Calcular o total manualmente
+
                                     var total = context.dataset.data.reduce((sum, value) => sum + value, 0);
-                                    
-                                    // Calcular o percentual manualmente
+
                                     var percentual = total > 0 ? (valor / total) * 100 : 0;
-                                    
-                                    return label + ': ' + valor.toLocaleString('pt-BR') + ' vendas (' + 
+
+                                    return label + ': ' + valor.toLocaleString('pt-BR') + ' vendas (' +
                                         percentual.toLocaleString('pt-BR', {
-                                            minimumFractionDigits: 1, 
+                                            minimumFractionDigits: 1,
                                             maximumFractionDigits: 1
                                         }) + '%)';
                                 }
@@ -509,7 +496,7 @@
                     }
                 }
             });
-            
+
             // Gráfico de ticket médio por canal
             var ctxTicket = document.getElementById('ticketMedioPorCanalChart').getContext('2d');
             new Chart(ctxTicket, {
@@ -540,7 +527,7 @@
                             callbacks: {
                                 label: function(context) {
                                     return 'R$ ' + context.parsed.x.toLocaleString('pt-BR', {
-                                        minimumFractionDigits: 2, 
+                                        minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     });
                                 }
@@ -553,7 +540,7 @@
                             ticks: {
                                 callback: function(value) {
                                     return 'R$ ' + value.toLocaleString('pt-BR', {
-                                        minimumFractionDigits: 2, 
+                                        minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     });
                                 }
@@ -562,7 +549,7 @@
                     }
                 }
             });
-            <?php endif; ?>
+            {% endif %}
         });
     </script>
 </body>
