@@ -1,0 +1,35 @@
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: sistema_produtos_informatica
+      DB_USER: root
+      DB_PASSWORD: root
+      SECRET_KEY: altera-esta-chave-em-producao
+      SESSION_TIMEOUT: "900"
+      GENERATE_DATA: "true"
+    ports:
+      - "8080:8000"
+
+volumes:
+  db_data:
