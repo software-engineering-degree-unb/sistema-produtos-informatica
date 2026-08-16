@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minhas Compras</title>
+    <link rel="icon" type="image/x-icon" href="/assets/img/icon.ico">
+    <link href="/assets/css/compras.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body class="loggedin">
+    <nav class="navtop">
+        <div class="nav-left">
+            <img src="/assets/img/logo2.png" alt="">
+        </div>
+        <div class="nav-right">
+            <a href="/"><i class="fas fa-house"></i>Página Inicial</a>
+            <a href="/produtos"><i class="fas fa-shopping-bag"></i>Produtos</a>
+            <a href="/perfil"><i class="fas fa-user-circle"></i>Meu Perfil</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
+        </div>
+    </nav>
+
+    <div class="content">
+        <h2>Minhas Compras</h2>
+
+        <div class="compras-container">
+            {% if not compras %}
+                <div class="no-orders">
+                    <p>Você ainda não realizou nenhuma compra.</p>
+                    <a href="/produtos" class="btn btn-primary">Ver produtos</a>
+                </div>
+            {% else %}
+                {% for compra in compras %}
+                    <div class="compra-card">
+                        <div class="compra-header">
+                            <div class="compra-date">
+                                Compra #{{ compra.idCompra }} -
+                                {{ compra.dataCompra | datetime_brl }}
+                            </div>
+                            <div class="compra-total">
+                                R$ {{ compra.valorTotal | format_valor_brl }}
+                            </div>
+                        </div>
+                        <div class="compra-items">
+                            {{ compra.totalItens }} item(ns)
+                        </div>
+                        <div class="compra-actions">
+                            <a href="/compras/{{ compra.idCompra }}" class="view-details">
+                                Ver detalhes
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

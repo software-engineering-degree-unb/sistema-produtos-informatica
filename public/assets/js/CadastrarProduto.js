@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
     
             // Enviar requisição AJAX para salvar categoria
-            fetch('../public/index.php?controller=produto&action=addTipoProduto', {
+            fetch('/produtos/tipo', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -306,14 +306,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => {
             console.log('Resposta:', response); // Debug
             if(response.includes('success=1')) {
-                window.location.href = '../public/index.php?controller=produto&action=listProdutos&success=1';
+                window.location.href = '/produtos?success=1';
             } else {
-                window.location.href = '../public/index.php?controller=produto&action=createProdutos&error=1';
+                window.location.href = '/produtos/novo?error=1';
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            window.location.href = '../public/index.php?controller=produto&action=createProdutos&error=1';
+            window.location.href = '/produtos/novo?error=1';
         });
     });
 

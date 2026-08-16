@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Página inicial</title>
+    <link rel="icon" type="image/x-icon" href="/assets/img/icon.ico">
+    <link href="/assets/css/home.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body class="loggedin">
+{% if request.query_params.get('success') %}
+            <div class="success-animation fade-out">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
+            </div>
+            <script>
+                setTimeout(function() {
+                    const successAnimation = document.querySelector('.success-animation');
+                    successAnimation.classList.add('hidden');
+
+                    setTimeout(function() {
+                        window.location.href = "/";
+                    }, 1000);
+                }, 2000);
+            </script>
+        {% endif %}
+    <nav class="navtop">
+        <div class="nav-left">
+            <img src="/assets/img/logo2.png" alt="">
+        </div>
+        <div class="nav-right">
+            <a href="/"><i class="fas fa-house"></i>Página Inicial</a>
+            <a href="/perfil"><i class="fas fa-user-circle"></i>Meu Perfil</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
+        </div>
+    </nav>
+    <div class="content">
+        <h2>Página Inicial</h2>
+        <p>Seja bem vindo{% if request.session.get('nome') %}, {{ request.session.get('nome') }}{% endif %}!</p>
+        <div class="functions">
+            <h2>Funções</h2>
+            <div class="function-group">
+                <a href="/produtos" class="function">
+                    <i class="fa-solid fa-tachograph-digital"></i>
+                    <p>Visualizar produtos</p>
+                </a>
+
+                <a href="/compras" class="function">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>Minhas compras</p>
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

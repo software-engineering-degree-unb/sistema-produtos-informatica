@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatório de Vendas</title>
+    <link rel="icon" type="image/x-icon" href="/assets/img/icon.ico">
+    <link href="/assets/css/relatorio-vendas.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <style>
+
+    </style>
+</head>
+<body class="loggedin">
+    <nav class="navtop">
+        <div class="nav-left">
+            <img src="/assets/img/logo2.png" alt="">
+        </div>
+        <div class="nav-right">
+            <a href="/"><i class="fas fa-house"></i>Página Inicial</a>
+            <a href="/produtos"><i class="fas fa-shopping-bag"></i>Produtos</a>
+            <a href="/perfil"><i class="fas fa-user-circle"></i>Meu Perfil</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
+        </div>
+    </nav>
+
+    <div class="content">
+        <h2>Relatório de Vendas</h2>
+
+        <div class="filter-container">
+            <form action="/vendas" method="GET" class="filter-form">
+                <div class="filter-group">
+                    <label for="dataInicial">Data Inicial:</label>
+                    <input type="date" id="dataInicial" name="dataInicial" value="{{ filtros.dataInicial }}">
+                </div>
+
+                <div class="filter-group">
+                    <label for="dataFinal">Data Final:</label>
+                    <input type="date" id="dataFinal" name="dataFinal" value="{{ filtros.dataFinal }}">
+                </div>
+
+                <div class="filter-group">
+                    <label for="idUsuario">Usuário:</label>
+                    <select id="idUsuario" name="idUsuario">
+                        <option value="">Todos os usuários</option>
+                        {% for usuario in usuarios %}
+                            <option value="{{ usuario.idUsuario }}" {% if filtros.idUsuario | string == usuario.idUsuario | string %}selected{% endif %}>
+                                {{ usuario.nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="valorMinimo">Valor Mínimo:</label>
+                    <input type="text" id="valorMinimo" name="valorMinimo" placeholder="0,00" value="{{ filtros.valorMinimo }}">
+                </div>
+
+                <div class="filter-group">
+                    <label for="valorMaximo">Valor Máximo:</label>
+                    <input type="text" id="valorMaximo" name="valorMaximo" placeholder="0,00" value="{{ filtros.valorMaximo }}">
+                </div>
+
+                <div class="filter-buttons">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <a href="/vendas" class="btn btn-secondary">Limpar Filtros</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-label">Total de Vendas</div>
+                <div class="stat-value">{{ estatisticas.totalCompras | format_int_brl }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Valor Total (R$)</div>
+                <div class="stat-value">{{ estatisticas.valorTotal | format_valor_brl }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Média por Venda (R$)</div>
+                <div class="stat-value">{{ estatisticas.mediaValor | format_valor_brl }}</div>
+            </div>
+        </div>
+
+        {% if not compras %}
+            <div class="no-results">
+                <p>Nenhuma venda encontrada com os filtros selecionados.</p>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="vendas-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data/Hora</th>
+                            <th>Cliente</th>
+                            <th>Valor Total</th>
+                            <th>Itens</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for compra in compras %}
+                            <tr>
+                                <td>#{{ compra.idCompra }}</td>
+                                <td>{{ compra.dataCompra | datetime_brl }}</td>
+                                <td>{{ compra.nomeUsuario }}</td>
+                                <td>R$ {{ compra.valorTotal | format_valor_brl }}</td>
+                                <td>{{ compra.totalItens }}</td>
+                                <td>
+                                    <a href="/vendas/{{ compra.idCompra }}" class="btn-details">
+                                        Ver detalhes
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% set params = 'dataInicial=' ~ (filtros.dataInicial | urlencode) ~ '&dataFinal=' ~ (filtros.dataFinal | urlencode) ~ '&idUsuario=' ~ (filtros.idUsuario | urlencode) ~ '&valorMinimo=' ~ (filtros.valorMinimo | urlencode) ~ '&valorMaximo=' ~ (filtros.valorMaximo | urlencode) %}
+            <div class="pagination">
+                <a href="/vendas?pagina=1&{{ params }}" class="pagBtn"><i class="fa-solid fa-angles-left"></i></a>
+
+                <a href="/vendas?pagina={{ [1, paginaAtual - 1] | max }}&{{ params }}" class="pagBtn"><i class="fa-solid fa-angle-left"></i></a>
+
+                {% set maxDisplayedPages = 4 %}
+                {% set startPage = [1, paginaAtual - 2] | max %}
+                {% set endPage = [totalPaginas, startPage + maxDisplayedPages - 1] | min %}
+
+                {% if endPage - startPage < maxDisplayedPages - 1 %}
+                    {% set startPage = [1, endPage - maxDisplayedPages + 1] | max %}
+                {% endif %}
+
+                {% for i in range(startPage, endPage + 1) %}
+                    <a href="/vendas?pagina={{ i }}&{{ params }}" class="pagBtn {% if i == paginaAtual %}active{% endif %}">
+                        {{ i }}
+                    </a>
+                {% endfor %}
+
+                {% if endPage < totalPaginas %}
+                    <span class="ellipsis">...</span>
+                    <a href="/vendas?pagina={{ totalPaginas }}&{{ params }}" class="pagBtn">
+                        {{ totalPaginas }}
+                    </a>
+                {% endif %}
+
+                <a href="/vendas?pagina={{ [totalPaginas, paginaAtual + 1] | min }}&{{ params }}" class="pagBtn"><i class="fa-solid fa-angle-right"></i></a>
+
+                <a href="/vendas?pagina={{ totalPaginas }}&{{ params }}" class="pagBtn"><i class="fa-solid fa-angles-right"></i></a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Formatação de valores monetários
+        document.querySelectorAll('#valorMinimo, #valorMaximo').forEach(function(input) {
+            input.addEventListener('blur', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value === '') return;
+
+                value = (parseInt(value) / 100).toFixed(2);
+                e.target.value = value.replace('.', ',');
+            });
+
+            input.addEventListener('focus', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value === '') return;
+
+                e.target.value = (parseInt(value) / 100).toFixed(2).replace('.', ',');
+            });
+        });
+    </script>
+</body>
+</html>

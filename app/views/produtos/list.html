@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Produtos Disponíveis</title>
+    <link rel="icon" type="image/x-icon" href="/assets/img/icon.ico">
+    <link href="/assets/css/list-produto.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body class="loggedin">
+    <nav class="navtop">
+        <div class="nav-left">
+            <img src="/assets/img/logo2.png" alt="">
+        </div>
+            <div class="nav-right">
+            <a href="/"><i class="fas fa-house"></i>Página Inicial</a>
+            <a href="/perfil"><i class="fas fa-user-circle"></i>Meu Perfil</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i>Sair</a>
+        </div>
+    </nav>
+
+    <div class="content">
+        {% if request.session['idTipoLogin'] == 1 %}
+            <h2>Produtos Disponíveis
+                <span class="info-icon" id="infoIcon"><i class="fas fa-info-circle"></i></span>
+            </h2>
+        {% endif %}
+
+        {% if request.session['idTipoLogin'] == 2 %}
+            <h2>Gerenciar Produtos
+                <span class="info-icon" id="infoIcon"><i class="fas fa-info-circle"></i></span>
+            </h2>
+        {% endif %}
+
+        <div id="infoModal" class="modal-legenda">
+            <div class="modal-legenda-content">
+                <span class="modal-legenda-close" id="closeModal">&times;</span>
+
+                {% if request.session['idTipoLogin'] == 1 %}
+                    <h2>Tela de Produtos Disponíveis</h2>
+                        <p>Através dessa tela é possível visualizar os produtos disponíveis. Para visualizar Detalhes, clique sobre a foto ou nome do produto, então serão exibidas todas as informações do produto.</p>
+                            <br>
+                {% endif %}
+
+                {% if request.session['idTipoLogin'] == 2 %}
+                    <h2>Gerenciar Produtos</h2>
+                        <p>Através dessa tela é possível visualizar, editar e adicionar cadastro de produtos.</p>
+                        <ul>
+                            <li><strong>Adicionar Produto:</strong> Clique no botão com <i class="fas fa-plus"></i> para cadastrar um novo produto.</li>
+                            <br>
+                            <li><strong>Visualizar Detalhes:</strong> Clique sobre a foto ou nome do produto para ver todas as informações.</li>
+                            <br>
+                            <li><strong>Editar Produto:</strong> Use o botão de edição em cada card para modificar as informações.</li>
+                        </ul>
+                {% endif %}
+
+                <button class="btn btn-secondary" id="closeModalButton">Fechar</button>
+            </div>
+        </div>
+
+        <div>
+            <div class="header-content">
+                {% if request.session['idTipoLogin'] == 2 %}
+                    <a href="/produtos/novo" class="btn btn-primary"><i class="fa-solid fa-plus"></i></a>
+                {% endif %}
+                <form action="/produtos" method="GET" id="filter-form">
+                    <input type="hidden" name="searchType" value="geral">
+
+                    <div class="form-group">
+                        <label for="search">Pesquisa:</label>
+                        <input type="text" name="search" placeholder="Pesquisar produtos..." value="{{ search }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipoProduto">Tipo de Produto:</label>
+                        <select name="tipoProduto">
+                            <option value="">Todos</option>
+                            {% for tipo in tiposProduto %}
+                                <option value="{{ tipo.idTipoProduto }}"
+                                    {% if tipoProdutoSelecionado == tipo.idTipoProduto | string %}selected{% endif %}>
+                                    {{ tipo.descricao }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {% if request.session['idTipoLogin'] == 2 %}
+                        <div class="form-group">
+                            <label for="visibilidade">Visibilidade:</label>
+                            <select name="visibilidade">
+                                <option value="">Todos</option>
+                                {% for vis in visibilidadeProduto %}
+                                    <option value="{{ vis.idVisibilidadeProduto }}"
+                                        {% if visibilidadeSelecionado == vis.idVisibilidadeProduto | string %}selected{% endif %}>
+                                        {{ vis.descricao }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    <div id="filter-buttons">
+                        <label for="reset-filter">ㅤ</label>
+                        <button type="submit" class="btn btn-primary">Pesquisar</button>
+                        <label for="reset-filter">ㅤ</label>
+                        <button onclick="location.href='/produtos'" type="button" class="btn btn-primary">Limpar filtros</button>
+                    </div>
+                </form>
+            </div>
+
+            {% if request.query_params.get('success') %}
+                <div class="success-animation fade-out">
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                    </svg>
+                </div>
+                <script>
+                    setTimeout(function() {
+                        const successAnimation = document.querySelector('.success-animation');
+                        successAnimation.classList.add('hidden');
+
+                        setTimeout(function() {
+                            window.location.href = "/produtos";
+                        }, 1000);
+                    }, 2000);
+                </script>
+            {% endif %}
+
+            {% if request.query_params.get('error') %}
+                <div class="error-animation fade-out">
+                    <div class="container">
+                        <div class="svg-box">
+                            <svg class="circular red-stroke">
+                                <circle class="path" cx="75" cy="75" r="50" fill="none" stroke-width="5" stroke-miterlimit="10"/>
+                            </svg>
+                            <svg class="cross red-stroke">
+                                <g transform="matrix(0.79961,8.65821e-32,8.39584e-32,0.79961,-502.652,-204.518)">
+                                    <path class="first-line" d="M634.087,300.805L673.361,261.53" fill="none"/>
+                                </g>
+                                <g transform="matrix(-1.28587e-16,-0.79961,0.79961,-1.28587e-16,-204.752,543.031)">
+                                    <path class="second-line" d="M634.087,300.805L673.361,261.53"/>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    setTimeout(function() {
+                        const successAnimation = document.querySelector('.success-animation');
+                        successAnimation.classList.add('hidden');
+
+                        setTimeout(function() {
+                            window.location.href = "/produtos";
+                        }, 1000);
+                    }, 2000);
+                </script>
+            {% endif %}
+
+            <div class="equipment-grid">
+                {% if produtos %}
+                    {% for produto in produtos %}
+                        <div class="equipment-card"
+                            data-product-id="{{ produto.idProduto }}"
+                            data-visibility="{{ produto.idVisibilidadeProduto }}"
+                            data-images='{{ produto.imagens | tojson_safe }}'
+                            data-full-details='{{ produto | tojson_safe }}'>
+                            <div class="image-container">
+                                {% if produto.imagens %}
+                                    <img class="equipment-image" src="data:image/jpeg;base64,{{ produto.imagens[0].imagemProduto }}" alt="Produto">
+                                {% else %}
+                                    <img class="equipment-image" src="/assets/img/no-image.jpg" alt="Sem imagem">
+                                {% endif %}
+                                <div class="image-title"></div>
+                            </div>
+                            <div class="equipment-header">
+                                <div class="equipment-name">
+                                    {{ produto.nomeProduto }}
+                                </div>
+                                {% if request.session['idTipoLogin'] == 2 %}
+                                    <a href="/produtos/{{ produto.idProduto }}/editar"
+                                    class="edit-button">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                {% endif %}
+                                {% if request.session['idTipoLogin'] == 1 %}
+                                    <button class="cart-button" onclick="addToCart({{ produto.idProduto }})">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Não há nenhum Produto.</p>
+                {% endif %}
+            </div>
+
+            <div class="pagination">
+                <a href="/produtos?pagina=1&search={{ search | urlencode }}&tipoProduto={{ tipoProdutoSelecionado | urlencode }}&visibilidade={{ visibilidadeSelecionado | urlencode }}" class="pagBtn"><i class="fa-solid fa-angles-left"></i></a>
+                <a href="/produtos?pagina={{ [1, paginaAtual - 1] | max }}&search={{ search | urlencode }}&tipoProduto={{ tipoProdutoSelecionado | urlencode }}&visibilidade={{ visibilidadeSelecionado | urlencode }}" class="pagBtn"><i class="fa-solid fa-angle-left"></i></a>
+
+                {% set maxDisplayedPages = 4 %}
+                {% set startPage = [1, paginaAtual - 2] | max %}
+                {% set endPage = [totalPaginas, startPage + maxDisplayedPages - 1] | min %}
+
+                {% if endPage - startPage < maxDisplayedPages - 1 %}
+                    {% set startPage = [1, endPage - maxDisplayedPages + 1] | max %}
+                {% endif %}
+
+                {% for i in range(startPage, endPage + 1) %}
+                    <a href="/produtos?pagina={{ i }}&search={{ search | urlencode }}&tipoProduto={{ tipoProdutoSelecionado | urlencode }}&visibilidade={{ visibilidadeSelecionado | urlencode }}" class="pagBtn {% if i == paginaAtual %}active{% endif %}">
+                        {{ i }}
+                    </a>
+                {% endfor %}
+
+                {% if endPage < totalPaginas %}
+                    <span class="ellipsis">...</span>
+                    <a href="/produtos?pagina={{ totalPaginas }}&search={{ search | urlencode }}&tipoProduto={{ tipoProdutoSelecionado | urlencode }}&visibilidade={{ visibilidadeSelecionado | urlencode }}" class="pagBtn">
+                        {{ totalPaginas }}
+                    </a>
+                {% endif %}
+
+                <a href="/produtos?pagina={{ [totalPaginas, paginaAtual + 1] | min }}&search={{ search | urlencode }}&tipoProduto={{ tipoProdutoSelecionado | urlencode }}&visibilidade={{ visibilidadeSelecionado | urlencode }}" class="pagBtn"><i class="fa-solid fa-angle-right"></i></a>
+                <a href="/produtos?pagina={{ totalPaginas }}&search={{ search | urlencode }}&tipoProduto={{ tipoProdutoSelecionado | urlencode }}&visibilidade={{ visibilidadeSelecionado | urlencode }}" class="pagBtn"><i class="fa-solid fa-angles-right"></i></a>
+            </div>
+
+            <!-- Modal for product details -->
+            <div id="productDetailsModal" class="details-modal">
+                <div class="details-modal-content">
+                    <span class="details-modal-close">&times;</span>
+                    <div class="modal-image-container">
+                        <img class="details-modal-image" src="" alt="Produto">
+                        <div class="modal-nav">
+                            <button onclick="changeModalImage(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span class="image-counter"></span>
+                            <button onclick="changeModalImage(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="details-modal-title"></div>
+                    <div class="details-modal-code"></div>
+                    <div class="details-modal-description"></div>
+                    <div class="details-modal-price"></div>
+                    <div class="details-modal-min-price"></div>
+                    <div class="details-modal-rental"></div>
+                    <div class="details-modal-date"></div>
+                </div>
+            </div>
+        </div>
+        {% if request.session['idTipoLogin'] == 1 %}
+            <div class="view-cart-container">
+                <button id="viewCartBtn" class="view-cart-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Ver Carrinho</span>
+                    <span class="cart-counter" id="cartCounter">0</span>
+                </button>
+            </div>
+
+            <!-- Modal do Carrinho -->
+            <div id="cartModal" class="cart-modal">
+                <div class="cart-modal-content">
+                    <span class="cart-modal-close">&times;</span>
+                    <h2>Seu Carrinho</h2>
+                    <div id="cartItems" class="cart-items">
+                        <!-- Itens do carrinho serão inseridos aqui via JavaScript -->
+                    </div>
+                    <div class="cart-footer">
+                        <div class="cart-total">
+                            <span>Total:</span>
+                            <span id="cartTotal">R$ 0,00</span>
+                        </div>
+                        <button id="clearCartBtn" class="btn btn-danger">Limpar Carrinho</button>
+                        <button id="checkoutBtn" class="btn btn-primary">Finalizar Compra</button>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+    <script src="/assets/js/ListarProduto.js"></script>
+</body>
+</html>

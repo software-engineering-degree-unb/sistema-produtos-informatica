@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Enviar dados do carrinho para o servidor
-        fetch('../public/index.php?controller=compra&action=finalizarCompra', {
+        fetch('/compra/finalizar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const itemElement = document.createElement('div');
             itemElement.className = 'cart-item';
             itemElement.innerHTML = `
-                <img class="cart-item-image" src="data:image/jpeg;base64,${item.image}" alt="${item.name}" onerror="this.src='../public/assets/img/no-image.jpg'">
+                <img class="cart-item-image" src="data:image/jpeg;base64,${item.image}" alt="${item.name}" onerror="this.src='/assets/img/no-image.jpg'">
                 <div class="cart-item-details">
                     <div class="cart-item-name">${item.name}</div>
                     <div class="cart-item-code">Código: ${item.code}</div>
