@@ -1,6 +1,5 @@
 """Gera compras aleatórias para popular os relatórios.
 
-Substitui o script original ``3 - generate_data.php``.
 Gera compras para os usuários 3-27 (clientes comuns) distribuídas nos últimos 2 anos.
 """
 
