@@ -2,7 +2,7 @@
 
 ## Visão geral
 
-Sistema web de gerenciamento de produtos de informática, originalmente escrito em PHP e portado para **Python + FastAPI**, mantendo o mesmo banco MySQL/MariaDB e o front-end (CSS/JS) herdados.
+Sistema web de gerenciamento de produtos de informática, escrito em Python + FastAPI, com banco MySQL/MariaDB e front-end CSS/JS.
 
 Funcionalidades principais:
 
@@ -50,7 +50,7 @@ Funcionalidades principais:
 │   ├── seed_data.py         # Insere produtos, usuários e credenciais iniciais
 │   └── generate_data.py     # Gera compras/vendas fictícias (relatórios)
 └── public/
-    └── assets/              # CSS, JS e imagens herdados do projeto PHP
+    └── assets/              # CSS, JS e imagens
 ```
 
 ## Como executar

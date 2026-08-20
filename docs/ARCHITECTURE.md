@@ -8,13 +8,9 @@ evoluir o projeto.
 ## 1. Visão geral
 
 O sistema é uma aplicação web monolítica que gerencia produtos de
-informática, usuários, compras e relatórios de vendas. Foi originalmente
-escrito em **PHP procedural** e posteriormente **portado para Python**,
-mantendo o mesmo banco de dados relacional (MySQL/MariaDB) e o front-end
-(HTML/CSS/JS) herdados do projeto original. Essa origem explica algumas
-características do código — por exemplo, a ausência de um ORM e o uso de SQL
-"cru" (raw SQL) em todos os pontos de acesso a dados, espelhando fielmente as
-consultas que existiam na versão PHP.
+informática, usuários, compras e relatórios de vendas. Foi escrito em 
+Python com o framework FastAPI, utilizando MySQL/MariaDB como banco de 
+dados relacional e um front-end baseado em HTML/CSS/JavaScript.
 
 A stack atual é:
 
@@ -27,16 +23,15 @@ A stack atual é:
 | Driver de acesso a dados | PyMySQL | Comunicação com o banco (sem ORM) |
 | Sessão | Starlette `SessionMiddleware` | Cookie assinado (itsdangerous) |
 | Senhas | bcrypt | Hash de credenciais |
-| Front-end | HTML + CSS + JavaScript vanilla | Interatividade herdada do PHP |
+| Front-end | HTML + CSS + JavaScript vanilla | Interatividade |
 | Containerização | Docker + Docker Compose | Empacotamento e orquestração |
 
 ## 2. Estilo arquitetural: MVC adaptado a um framework de rotas
 
-O projeto segue uma variação do padrão **MVC (Model-View-Controller)**,
-comum em frameworks PHP como CodeIgniter/Laravel — o que faz sentido dado o
-código de origem. A adaptação para FastAPI (que não é um framework MVC
-"nativo", e sim um framework de rotas baseado em funções) foi feita
-organizando o código em pastas com responsabilidades equivalentes:
+O projeto segue uma variação do padrão **MVC (Model-View-Controller)**, com 
+adaptação para FastAPI (que não é um framework MVC "nativo", e sim um framework 
+de rotas baseado em funções) foi feitaorganizando o código em pastas com 
+responsabilidades equivalentes:
 
 ```
 app/
@@ -60,9 +55,7 @@ Diferente de um MVC "de livro-texto", aqui:
 - **Os Models não herdam de uma classe base comum nem usam um ORM
   (SQLAlchemy, Tortoise etc.).** Cada Model é uma classe simples que recebe
   uma conexão PyMySQL no construtor e expõe métodos que executam SQL
-  diretamente. Isso foi uma escolha deliberada para manter a portabilidade
-  1:1 com as queries do sistema PHP original, facilitando auditoria e
-  comparação durante a migração.
+  diretamente.
 - **As Views não têm lógica de apresentação complexa** além de laços,
   condicionais e filtros Jinja2. Toda regra de negócio fica em
   Controllers/Models, mantendo as templates "burras" (dumb templates).
@@ -72,8 +65,8 @@ Diferente de um MVC "de livro-texto", aqui:
 Essa é provavelmente a decisão arquitetural mais visível do projeto. As
 razões práticas foram:
 
-1. **Fidelidade à migração**: o banco e as queries já existiam no sistema
-   PHP; reescrever tudo com um ORM introduziria risco de divergência de
+1. **Fidelidade à migração**: o banco e as queries já existiam anteriormente; 
+   reescrever tudo com um ORM introduziria risco de divergência de
    comportamento (ex.: joins, agregações e relatórios complexos como
    `vendas/relatorio-mensal` e `vendas/relatorio-clientes`).
 2. **Controle total sobre SQL**: relatórios com `GROUP BY`, subqueries e
@@ -214,9 +207,8 @@ endpoint protegido:
 | `require_comum(request)` | Login + timeout + `idTipoLogin == 1` | Redireciona para `/` |
 
 Essas funções **não são dependências do FastAPI** (não usam `Depends`);
-são chamadas de forma imperativa como a primeira linha de cada handler,
-seguindo o mesmo padrão que existia no PHP original (checagens no topo de
-cada script). Isso é uma diferença notável em relação ao idiomático do
+são chamadas de forma imperativa como a primeira linha de cada handler, por
+checagens no topo de cada script. Isso é uma diferença notável em relação ao idiomático do
 FastAPI (que favoreceria `Depends(require_admin)`), refletindo novamente a
 fidelidade à estrutura original durante a migração.
 
@@ -349,9 +341,8 @@ O front-end é **JavaScript vanilla**, um arquivo por página funcional
 (`public/assets/js/`), sem framework SPA nem bundler. Cada script é
 carregado diretamente pela template correspondente e interage com o back-end
 via `fetch()` contra os endpoints JSON (ex.: `CadastrarProduto.js` chama
-`POST /produtos/novo`, que retorna texto simples `success=1`/`error=1`, um
-formato herdado do PHP original em vez do JSON puro usual do restante da
-API). Os arquivos estáticos (CSS/JS/imagens) são servidos via
+`POST /produtos/novo`, que retorna texto simples `success=1`/`error=1`. 
+Os arquivos estáticos (CSS/JS/imagens) são servidos via
 `StaticFiles`, montados em `/assets` (`app.mount("/assets", ...)` em
 `main.py`), sem passar pelo Jinja2.
 
@@ -398,13 +389,13 @@ contexto:
 
 | Decisão | Motivação | Trade-off aceito |
 |---|---|---|
-| Sem ORM, SQL cru via PyMySQL | Fidelidade à migração do PHP; controle total sobre queries complexas de relatório | Sem migrations versionadas; risco de erro de digitação em SQL não detectado em tempo de desenvolvimento |
+| Sem ORM, SQL cru via PyMySQL | Controle total sobre queries complexas de relatório | Sem migrations versionadas; risco de erro de digitação em SQL não detectado em tempo de desenvolvimento |
 | Sessão 100% em cookie assinado | Stateless, fácil de escalar horizontalmente | Cookie cresce com o tamanho da sessão; não é possível invalidar uma sessão específica no servidor sem trocar `SECRET_KEY` (o que invalida todas) |
-| Guards chamados manualmente (não `Depends`) | Fidelidade ao padrão de checagem no topo do script do PHP original | Mais fácil esquecer de chamar `require_login`/`require_admin` em uma nova rota do que se fosse obrigatório via assinatura de dependência |
+| Guards chamados manualmente (não `Depends`) | Fidelidade ao padrão de checagem no topo do script | Mais fácil esquecer de chamar `require_login`/`require_admin` em uma nova rota do que se fosse obrigatório via assinatura de dependência |
 | `RedirectException` + exception handler global | Permite redirecionar de qualquer profundidade de chamada sem `return` explícito em cada camada | Uso de exceções para controle de fluxo (não é um erro real), o que pode confundir quem não conhece o padrão |
 | Uma conexão de banco nova por requisição | Simplicidade | Sem pool de conexões — pode não escalar bem sob alta concorrência |
 | Auditoria campo a campo | Rastreabilidade granular de alterações cadastrais | Mais linhas gravadas por operação de update |
-| JS vanilla por página, sem SPA | Reaproveita front-end herdado do PHP; zero build step | Sem componentização/reuso de UI entre páginas; scripts duplicam padrões (fetch, montagem de tabela) |
+| JS vanilla por página, sem SPA | Zero build step | Sem componentização/reuso de UI entre páginas; scripts duplicam padrões (fetch, montagem de tabela) |
 
 ## 14. Possíveis evoluções
 
