@@ -92,7 +92,7 @@ def main():
 
                     if flat_items:
                         cursor.executemany(
-                            "INSERT INTO item_compra (idCompra, idProduto, quantidade, valorUnitario, valorTotal) VALUES (%s, %s, %s, %s, %s)",
+                            "INSERT INTO itemCompra (idCompra, idProduto, quantidade, valorUnitario, valorTotal) VALUES (%s, %s, %s, %s, %s)",
                             flat_items,
                         )
 

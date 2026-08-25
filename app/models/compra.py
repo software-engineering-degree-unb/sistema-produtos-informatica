@@ -33,7 +33,7 @@ class Compra:
                 id_compra = cursor.lastrowid
 
                 query_item = """
-                    INSERT INTO item_compra (idCompra, idProduto, quantidade, valorUnitario, valorTotal)
+                    INSERT INTO itemCompra (idCompra, idProduto, quantidade, valorUnitario, valorTotal)
                     VALUES (%s, %s, %s, %s, %s)
                 """
                 for item in itens:
@@ -58,7 +58,7 @@ class Compra:
             query = """
                 SELECT c.*, COUNT(ic.idItemCompra) as totalItens
                 FROM compra c
-                LEFT JOIN item_compra ic ON c.idCompra = ic.idCompra
+                LEFT JOIN itemCompra ic ON c.idCompra = ic.idCompra
                 WHERE c.idUsuario = %s
                 GROUP BY c.idCompra
                 ORDER BY c.dataCompra DESC
@@ -87,7 +87,7 @@ class Compra:
 
                 query_itens = """
                     SELECT ic.*, p.nomeProduto, p.codigoProduto
-                    FROM item_compra ic
+                    FROM itemCompra ic
                     JOIN produto p ON ic.idProduto = p.idProduto
                     WHERE ic.idCompra = %s
                 """
@@ -106,7 +106,7 @@ class Compra:
                 SELECT c.*, u.nome as nomeUsuario, COUNT(ic.idItemCompra) as totalItens
                 FROM compra c
                 JOIN usuario u ON c.idUsuario = u.idUsuario
-                LEFT JOIN item_compra ic ON c.idCompra = ic.idCompra
+                LEFT JOIN itemCompra ic ON c.idCompra = ic.idCompra
                 WHERE 1=1
             """
             params = []
@@ -341,7 +341,7 @@ class Compra:
                             p.codigoProduto,
                             COUNT(ic.idItemCompra) as frequencia,
                             SUM(ic.quantidade) as quantidadeTotal
-                        FROM item_compra ic
+                        FROM itemCompra ic
                         JOIN compra c ON ic.idCompra = c.idCompra
                         JOIN produto p ON ic.idProduto = p.idProduto
                         WHERE c.idUsuario = %s

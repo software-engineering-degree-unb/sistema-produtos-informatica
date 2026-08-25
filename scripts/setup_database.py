@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS compra (
     FOREIGN KEY (idCanalVenda) REFERENCES canalVenda(idCanalVenda)
 );
 
-CREATE TABLE IF NOT EXISTS item_compra (
+CREATE TABLE IF NOT EXISTS itemCompra (
     idItemCompra INT AUTO_INCREMENT PRIMARY KEY,
     idCompra INT NOT NULL,
     idProduto INT NOT NULL,
