@@ -1,0 +1,129 @@
+@startuml
+left to right direction
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+title Diagrama de Casos de Uso — Sistema de Produtos de Informática
+
+actor "Usuário Comum" as Usuario
+actor "Administrador" as Admin
+
+rectangle "Sistema de Produtos de Informática" {
+
+    package "Autenticação" {
+        usecase "Realizar Login" as UC_Login
+        usecase "Realizar Logout" as UC_Logout
+    }
+
+    package "Produtos" {
+        usecase "Consultar Produtos" as UC_ConsultarProdutos
+        usecase "Pesquisar e Filtrar\nProdutos" as UC_FiltrarProdutos
+        usecase "Visualizar Produto" as UC_VisualizarProduto
+
+        usecase "Cadastrar Produto" as UC_CadastrarProduto
+        usecase "Editar Produto" as UC_EditarProduto
+        usecase "Excluir Produto" as UC_ExcluirProduto
+        usecase "Gerenciar Imagens\ndo Produto" as UC_Imagens
+    }
+
+    package "Categorias" {
+        usecase "Cadastrar Categoria" as UC_CadastrarCategoria
+        usecase "Consultar Categorias" as UC_ConsultarCategorias
+    }
+
+    package "Usuários" {
+        usecase "Cadastrar Usuário" as UC_CadastrarUsuario
+        usecase "Consultar Usuários" as UC_ConsultarUsuarios
+        usecase "Pesquisar Usuários" as UC_PesquisarUsuarios
+        usecase "Visualizar Usuário" as UC_VisualizarUsuario
+        usecase "Editar Usuário" as UC_EditarUsuario
+    }
+
+    package "Compras" {
+        usecase "Realizar Compra" as UC_RealizarCompra
+        usecase "Consultar Minhas Compras" as UC_MinhasCompras
+        usecase "Visualizar Detalhes\nda Compra" as UC_DetalhesCompra
+    }
+
+    package "Relatórios" {
+        usecase "Consultar Relatório\nGeral de Vendas" as UC_RelGeral
+        usecase "Consultar Relatório\nMensal de Vendas" as UC_RelMensal
+        usecase "Consultar Vendas\npor Cliente" as UC_RelCliente
+        usecase "Consultar Vendas\npor Canal" as UC_RelCanal
+    }
+
+    package "Perfil" {
+        usecase "Consultar Próprio Perfil" as UC_Perfil
+    }
+
+    package "Histórico e Auditoria" {
+        usecase "Consultar Histórico\nde Login/Logout" as UC_HistLogin
+        usecase "Consultar Histórico\nde Alterações" as UC_HistAlteracoes
+    }
+
+
+    ' ==================================================
+    ' USUÁRIO COMUM
+    ' ==================================================
+
+    Usuario --> UC_Login
+    Usuario --> UC_Logout
+
+    Usuario --> UC_ConsultarProdutos
+    Usuario --> UC_VisualizarProduto
+
+    Usuario --> UC_RealizarCompra
+    Usuario --> UC_MinhasCompras
+    Usuario --> UC_DetalhesCompra
+
+    Usuario --> UC_Perfil
+
+
+    ' ==================================================
+    ' ADMINISTRADOR
+    ' ==================================================
+
+    Admin --> UC_Login
+    Admin --> UC_Logout
+
+    Admin --> UC_ConsultarProdutos
+    Admin --> UC_VisualizarProduto
+
+    Admin --> UC_CadastrarProduto
+    Admin --> UC_EditarProduto
+    Admin --> UC_ExcluirProduto
+    Admin --> UC_Imagens
+
+    Admin --> UC_CadastrarCategoria
+    Admin --> UC_ConsultarCategorias
+
+    Admin --> UC_CadastrarUsuario
+    Admin --> UC_ConsultarUsuarios
+    Admin --> UC_PesquisarUsuarios
+    Admin --> UC_VisualizarUsuario
+    Admin --> UC_EditarUsuario
+
+    Admin --> UC_RelGeral
+    Admin --> UC_RelMensal
+    Admin --> UC_RelCliente
+    Admin --> UC_RelCanal
+
+    Admin --> UC_HistLogin
+    Admin --> UC_HistAlteracoes
+
+
+    ' ==================================================
+    ' RELACIONAMENTOS INCLUDE
+    ' ==================================================
+
+    UC_ConsultarProdutos ..> UC_FiltrarProdutos : <<include>>
+
+    UC_ConsultarUsuarios ..> UC_PesquisarUsuarios : <<include>>
+
+    UC_EditarProduto ..> UC_Imagens : <<include>>
+
+}
+
+@enduml
