@@ -1,0 +1,156 @@
+@startuml
+
+entity situacaoUsuario {
+    * idSituacaoUsuario : INT <<PK>>
+    --
+    descricao : VARCHAR(7)
+}
+
+entity visibilidadeProduto {
+    * idVisibilidadeProduto : INT <<PK>>
+    --
+    descricao : VARCHAR(7)
+}
+
+entity tipoLogin {
+    * idTipoLogin : INT <<PK>>
+    --
+    descricao : VARCHAR(13)
+}
+
+entity tipoProduto {
+    * idTipoProduto : INT <<PK>>
+    --
+    descricao : VARCHAR(20)
+}
+
+entity canalVenda {
+    * idCanalVenda : INT <<PK>>
+    --
+    descricao : VARCHAR(50)
+}
+
+entity produto {
+    * idProduto : INT <<PK>>
+    --
+    idVisibilidadeProduto : INT <<FK>>
+    nomeProduto : VARCHAR(120)
+    codigoProduto : VARCHAR(30)
+    idTipoProduto : INT <<FK>>
+    valorProduto : DOUBLE(7,2)
+    descricaoProduto : VARCHAR(450)
+    dataCriacao : DATETIME
+}
+
+entity imagemProduto {
+    * idImagemProduto : INT <<PK>>
+    --
+    idProduto : INT <<FK>>
+    imagemProduto : MEDIUMTEXT
+}
+
+entity usuario {
+    * idUsuario : INT <<PK>>
+    --
+    nome : VARCHAR(100)
+    documento : VARCHAR(20)
+    dataCriacao : DATETIME
+    idSituacaoUsuario : INT <<FK>>
+}
+
+entity endereco {
+    * idEndereco : INT <<PK>>
+    --
+    idUsuario : INT <<FK>>
+    cep : VARCHAR(9)
+    uf : VARCHAR(2)
+    municipio : VARCHAR(100)
+    rua : VARCHAR(150)
+    numero : VARCHAR(10)
+    complemento : VARCHAR(100)
+}
+
+entity login {
+    * idLogin : INT <<PK>>
+    --
+    idUsuario : INT <<FK>>
+    login : VARCHAR(20)
+    senha : VARCHAR(255)
+    idTipoLogin : INT <<FK>>
+    dataCriacao : DATETIME
+    idSituacaoUsuario : INT <<FK>>
+}
+
+entity historicoAlteracoesUsuario {
+    * idHistorico : INT <<PK>>
+    --
+    tabela : VARCHAR(50)
+    operacao : ENUM
+    idRegistro : INT
+    campo : VARCHAR(50)
+    valorAntigo : TEXT
+    valorNovo : TEXT
+    dataAlteracao : DATETIME
+    idLogin : INT <<FK>>
+}
+
+entity historicoLogin {
+    * idHistoricoLogin : INT <<PK>>
+    --
+    idLogin : INT <<FK>>
+    tipoOperacao : ENUM
+    dataOperacao : DATETIME
+    enderecoIP : VARCHAR(45)
+    userAgent : VARCHAR(255)
+    statusOperacao : ENUM
+    detalhes : VARCHAR(255)
+}
+
+entity compra {
+    * idCompra : INT <<PK>>
+    --
+    idUsuario : INT <<FK>>
+    dataCompra : DATETIME
+    valorTotal : DECIMAL(10,2)
+    idCanalVenda : INT <<FK>>
+}
+
+entity itemCompra {
+    * idItemCompra : INT <<PK>>
+    --
+    idCompra : INT <<FK>>
+    idProduto : INT <<FK>>
+    quantidade : INT
+    valorUnitario : DECIMAL(10,2)
+    valorTotal : DECIMAL(10,2)
+}
+
+situacaoUsuario ||--o{ usuario
+
+situacaoUsuario ||--o{ login
+
+tipoLogin ||--o{ login
+
+usuario ||--o{ login
+
+usuario ||--|| endereco
+
+usuario ||--o{ compra
+
+canalVenda ||--o{ compra
+
+tipoProduto ||--o{ produto
+
+visibilidadeProduto ||--o{ produto
+
+produto ||--o{ imagemProduto
+
+produto ||--o{ itemCompra
+
+compra ||--o{ itemCompra
+
+login ||--o{ historicoLogin
+
+login ||--o{ historicoAlteracoesUsuario
+
+@enduml
