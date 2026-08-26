@@ -1,0 +1,266 @@
+@startuml
+
+left to right direction
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+skinparam class {
+    BackgroundColor #FEFECE
+    BorderColor #A80036
+    ArrowColor #A80036
+}
+
+skinparam minClassWidth 160
+
+title Diagrama de Classes — Sistema de Produtos de Informática — V3
+
+
+' ==========================================================
+' USUÁRIOS E ACESSO
+' ==========================================================
+
+package "Usuários e Acesso" {
+
+    class Usuario {
+        - idUsuario : int
+        - nome : String
+        - documento : String
+        - tipoDocumento : String
+        - dataNascimento : Date
+        - telefone : String
+        - email : String
+        - dataCriacao : DateTime
+
+        + cadastrar() : void
+        + editar() : void
+        + consultar() : Usuario
+    }
+
+
+    class Login {
+        - idLogin : int
+        - login : String
+        - senhaHash : String
+        - dataCriacao : DateTime
+
+        + autenticar(senha : String) : bool
+        + encerrarSessao() : void
+    }
+
+
+    class TipoLogin {
+        - idTipoLogin : int
+        - descricao : String
+    }
+
+
+    class SituacaoUsuario {
+        - idSituacaoUsuario : int
+        - descricao : String
+    }
+
+
+    class Endereco {
+        - idEndereco : int
+        - logradouro : String
+        - numero : String
+        - complemento : String
+        - bairro : String
+        - cidade : String
+        - estado : String
+        - cep : String
+    }
+
+
+    Usuario "1" *-- "1" Login : possui
+    Usuario "1" -- "0..1" Endereco : possui
+    Login "0..*" --> "1" TipoLogin : possui tipo
+    Usuario "0..*" --> "1" SituacaoUsuario : possui situação
+}
+
+
+' ==========================================================
+' CATÁLOGO DE PRODUTOS
+' ==========================================================
+
+package "Catálogo de Produtos" {
+
+    class Produto {
+        - idProduto : int
+        - codigoProduto : String
+        - nome : String
+        - descricao : String
+        - valor : Decimal
+        - dataCriacao : DateTime
+
+        + cadastrar() : void
+        + editar() : void
+        + excluir() : void
+        + consultar() : Produto
+    }
+
+
+    class TipoProduto {
+        - idTipoProduto : int
+        - descricao : String
+
+        + cadastrar() : void
+    }
+
+
+    class VisibilidadeProduto {
+        - idVisibilidadeProduto : int
+        - descricao : String
+    }
+
+
+    class ImagemProduto {
+        - idImagemProduto : int
+        - imagem : String
+    }
+
+
+    TipoProduto "1" <-- "0..*" Produto : classifica
+    VisibilidadeProduto "1" <-- "0..*" Produto : define visibilidade
+    Produto "1" *-- "0..*" ImagemProduto : possui
+}
+
+
+' ==========================================================
+' COMPRAS E VENDAS
+' ==========================================================
+
+package "Compras e Vendas" {
+
+    class Compra {
+        - idCompra : int
+        - dataCompra : DateTime
+        - valorTotal : Decimal
+
+        + registrar() : void
+        + calcularTotal() : Decimal
+        + consultar() : Compra
+    }
+
+
+    class ItemCompra {
+        - idItemCompra : int
+        - quantidade : int
+        - precoUnitario : Decimal
+        - subtotal : Decimal
+
+        + calcularSubtotal() : Decimal
+    }
+
+
+    class CanalVenda {
+        - idCanalVenda : int
+        - descricao : String
+    }
+
+
+    Usuario "1" <-- "0..*" Compra : realiza
+    Compra "1" *-- "1..*" ItemCompra : contém
+    Produto "1" <-- "0..*" ItemCompra : refere-se a
+    CanalVenda "1" <-- "0..*" Compra : utiliza
+}
+
+
+' ==========================================================
+' RELATÓRIOS
+' ==========================================================
+
+package "Relatórios" {
+
+    class RelatorioVendas {
+        + gerarRelatorioMensal(ano : int) : Relatorio
+        + obterTopClientes(limite : int, periodo : Periodo) : Relatorio
+        + obterVendasPorCanal(periodo : Periodo) : Relatorio
+    }
+
+
+    class Relatorio {
+        - titulo : String
+        - periodo : Periodo
+        - dados : Object
+    }
+
+
+    class Periodo {
+        - inicio : Date
+        - fim : Date
+    }
+
+
+    RelatorioVendas ..> Compra : consulta
+    RelatorioVendas ..> Usuario : consulta
+    RelatorioVendas ..> CanalVenda : agrupa por
+    RelatorioVendas ..> Relatorio : gera
+}
+
+
+' ==========================================================
+' AUDITORIA
+' ==========================================================
+
+package "Auditoria" {
+
+    class HistoricoLogin {
+        - idHistoricoLogin : int
+        - tipoOperacao : String
+        - status : String
+        - dataHora : DateTime
+        - enderecoIP : String
+        - userAgent : String
+        - detalhes : String
+
+        + registrar() : void
+    }
+
+
+    class HistoricoAlteracoesUsuario {
+        - idHistorico : int
+        - tabela : String
+        - operacao : String
+        - idRegistro : int
+        - campo : String
+        - valorAntigo : String
+        - valorNovo : String
+        - dataHora : DateTime
+
+        + registrarAlteracao() : void
+    }
+
+
+    Login "1" -- "0..*" HistoricoLogin : registra
+    Login "1" -- "0..*" HistoricoAlteracoesUsuario : realiza
+}
+
+
+' ==========================================================
+' ENUMERAÇÕES
+' ==========================================================
+
+enum StatusOperacao {
+    SUCESSO
+    FALHA
+}
+
+enum TipoOperacao {
+    LOGIN
+    LOGOUT
+    ALTERACAO
+}
+
+' ==========================================================
+' TIPOS UTILIZADOS PELA AUDITORIA
+' ==========================================================
+
+HistoricoLogin ..> StatusOperacao
+HistoricoLogin ..> TipoOperacao
+
+
+@enduml
