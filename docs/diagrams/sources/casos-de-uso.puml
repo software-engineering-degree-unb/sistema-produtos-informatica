@@ -35,8 +35,7 @@ rectangle "Sistema de Produtos de Informática" {
 
     package "Usuários" {
         usecase "Cadastrar Usuário" as UC_CadastrarUsuario
-        usecase "Consultar Usuários" as UC_ConsultarUsuarios
-        usecase "Pesquisar Usuários" as UC_PesquisarUsuarios
+        usecase "Consultar e Pesquisar \nUsuários" as UC_ConsultarUsuarios
         usecase "Visualizar Usuário" as UC_VisualizarUsuario
         usecase "Editar Usuário" as UC_EditarUsuario
     }
@@ -72,6 +71,7 @@ rectangle "Sistema de Produtos de Informática" {
     Usuario --> UC_Logout
 
     Usuario --> UC_ConsultarProdutos
+    Usuario --> UC_FiltrarProdutos
     Usuario --> UC_VisualizarProduto
 
     Usuario --> UC_RealizarCompra
@@ -89,6 +89,7 @@ rectangle "Sistema de Produtos de Informática" {
     Admin --> UC_Logout
 
     Admin --> UC_ConsultarProdutos
+    Admin --> UC_FiltrarProdutos
     Admin --> UC_VisualizarProduto
 
     Admin --> UC_CadastrarProduto
@@ -101,7 +102,6 @@ rectangle "Sistema de Produtos de Informática" {
 
     Admin --> UC_CadastrarUsuario
     Admin --> UC_ConsultarUsuarios
-    Admin --> UC_PesquisarUsuarios
     Admin --> UC_VisualizarUsuario
     Admin --> UC_EditarUsuario
 
@@ -118,9 +118,8 @@ rectangle "Sistema de Produtos de Informática" {
     ' RELACIONAMENTOS INCLUDE
     ' ==================================================
 
-    UC_ConsultarProdutos ..> UC_FiltrarProdutos : <<include>>
 
-    UC_ConsultarUsuarios ..> UC_PesquisarUsuarios : <<include>>
+    UC_CadastrarProduto ..> UC_Imagens : <<include>>
 
     UC_EditarProduto ..> UC_Imagens : <<include>>
 
